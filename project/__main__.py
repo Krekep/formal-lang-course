@@ -1,4 +1,4 @@
-import console
+from . import console
 
 if __name__ == "__main__":
     print("exec sources directory")
