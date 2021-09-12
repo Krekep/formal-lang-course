@@ -15,26 +15,27 @@ def test_regex_to_nfa():
 
 
 def test_regex_to_dfa_language_accept():
-    regex1 = "(10)|(11)|(01)|0101"
+    regex = "(1 0) | (1 1) | (0 1) | (0 1 0 1)*"
     language = [
+        [],
         [Symbol("1"), Symbol("0")],
         [Symbol("1"), Symbol("1")],
         [Symbol("0"), Symbol("1")],
         [Symbol("0"), Symbol("1"), Symbol("0"), Symbol("1")],
     ]
-    dfa = utils.regex_to_dfa(regex1)
+    dfa = utils.regex_to_dfa(regex)
     for word in language:
         assert dfa.accepts(word)
 
 
 def test_regex_to_dfa_language_non_accept():
-    regex1 = "(10)|(11)|(01)|0101"
+    regex = "(1 0) | (1 1) | (0 1) | (0 1 0 1)"
     language = [
         [Symbol("0"), Symbol("0")],
         [Symbol("1"), Symbol("1"), Symbol("1")],
         [Symbol("0"), Symbol("1"), Symbol("1")],
         [Symbol("1"), Symbol("1"), Symbol("0"), Symbol("1")],
     ]
-    dfa = utils.regex_to_dfa(regex1)
+    dfa = utils.regex_to_dfa(regex)
     for word in language:
         assert not dfa.accepts(word)

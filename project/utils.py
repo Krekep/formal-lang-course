@@ -71,7 +71,9 @@ def regex_to_nfa(regex: str) -> NondeterministicFiniteAutomaton:
     return nfa
 
 
-def nfa_to_dfa(nfa: NondeterministicFiniteAutomaton) -> DeterministicFiniteAutomaton:
+def nfa_to_minimal_dfa(
+    nfa: NondeterministicFiniteAutomaton,
+) -> DeterministicFiniteAutomaton:
     """
     Building a non-deterministic state automaton from a regular expression.
     Parameters
@@ -85,6 +87,7 @@ def nfa_to_dfa(nfa: NondeterministicFiniteAutomaton) -> DeterministicFiniteAutom
     """
 
     dfa = nfa.to_deterministic()
+    dfa.minimize()
     return dfa
 
 
@@ -102,5 +105,5 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
     """
 
     nfa = regex_to_nfa(regex)
-    dfa = nfa_to_dfa(nfa)
+    dfa = nfa_to_minimal_dfa(nfa)
     return dfa
