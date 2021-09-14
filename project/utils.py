@@ -5,66 +5,44 @@ A set of methods for working with a graph.
 from typing import Tuple
 import cfpq_data
 import networkx as nx
-from pyformlang.finite_automaton import (
-    DeterministicFiniteAutomaton,
-    NondeterministicFiniteAutomaton,
-)
-from pyformlang.regular_expression import Regex
 
-__all__ = ["regex_to_nfa", "nfa_to_minimal_dfa", "regex_to_dfa"]
+__all__ = ["get_graph_info", "create_two_cycle_graph"]
 
 
-def regex_to_nfa(regex: str) -> NondeterministicFiniteAutomaton:
+def get_graph_info(graph: nx.MultiDiGraph) -> Tuple[int, int, set]:
     """
-    Building a non-deterministic state automaton from a regular expression.
+    Gets information about the graph as a tuple of 3 elements -
+    the number of nodes, the number of edges, and labels set on the edges.
     Parameters
     ----------
-    regex: str
-        Regular expression.
+    graph: nx.MultiDiGraph
+        Graph from which information is gained
     Returns
     -------
-    NondeterministicFiniteAutomaton
-        Non-deterministic Finite Automaton, which is equivalent to given regular expression.
+    Tuple[int, int, set]
+        Info about graph
     """
-
-    rgx = Regex(regex)
-    nfa = rgx.to_epsilon_nfa()
-    return nfa
+    return graph.number_of_nodes(), graph.number_of_edges(), cfpq_data.get_labels(graph)
 
 
-def nfa_to_minimal_dfa(
-    nfa: NondeterministicFiniteAutomaton,
-) -> DeterministicFiniteAutomaton:
+def create_two_cycle_graph(
+    first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
+) -> nx.MultiDiGraph:
     """
-    Building a non-deterministic state automaton from a regular expression.
+    Create two cycle graph with labels on the edges.
     Parameters
     ----------
-    nfa: NondeterministicFiniteAutomaton
-        Non-deterministic Finite Automaton.
+    first_vertices: int
+        Amount of vertices in the first cycle
+    second_vertices: int
+        Amount of vertices in the second cycle
+    edge_labels: Tuple[str, str]
+        Labels for the edges on the first and second cycle
     Returns
     -------
-    DeterministicFiniteAutomaton
-        Deterministic Finite Automaton, which is equivalent to given non-deterministic Finite Automaton.
+    nx.MultiDiGraph
+        Generated graph with two cycles
     """
-
-    dfa = nfa.to_deterministic()
-    dfa.minimize()
-    return dfa
-
-
-def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
-    """
-    Building a non-deterministic state automaton from a regular expression.
-    Parameters
-    ----------
-    regex: NondeterministicFiniteAutomaton
-        Non-deterministic Finite Automaton.
-    Returns
-    -------
-    DeterministicFiniteAutomaton
-        Deterministic Finite Automaton, which is equivalent to given regex expression.
-    """
-
-    nfa = regex_to_nfa(regex)
-    dfa = nfa_to_minimal_dfa(nfa)
-    return dfa
+    return cfpq_data.labeled_two_cycles_graph(
+        first_vertices, second_vertices, edge_labels=edge_labels, verbose=False
+    )
