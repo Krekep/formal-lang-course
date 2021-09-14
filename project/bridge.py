@@ -4,7 +4,8 @@ from typing import Tuple
 
 import cfpq_data
 import networkx as nx
-from . import utils
+import project.utils
+from project import utils
 
 __all__ = ["get_graph_info", "create_two_cycles", "save_to_dot", "quit_comm"]
 
@@ -15,10 +16,12 @@ def get_graph_info(graph_name: str) -> Tuple[int, int, set]:
     """
     This method provide use get_graph_info with console arguments.
     Return information about graph by its name.
+
     Parameters
     ----------
     graph_name: str
         Name of the graph
+
     Returns
     -------
     Tuple[int, int, set]
@@ -59,6 +62,7 @@ def create_two_cycles(
     """
     This method provide use create_two_cycles with console arguments.
     Create named and labeled graph with two cycles.
+
     Parameters
     ----------
     graph_name: str
@@ -71,6 +75,7 @@ def create_two_cycles(
         Label for edges in the first cycle
     second_label: str
         Label for edges in the second cycle
+
     Returns
     -------
     None
@@ -89,12 +94,14 @@ def save_to_dot(graph_name: str, folder_path: str) -> str:
     """
     This method provide use save_to_dot with console arguments.
     Saves given graph to the dot file by folder_path.
+
     Parameters
     ----------
     graph_name: str
         Name of saved graph
     folder_path: str
         Path to the folder where to save graph
+
     Returns
     -------
     str
@@ -122,6 +129,7 @@ def save_to_dot(graph_name: str, folder_path: str) -> str:
 def quit_comm() -> None:
     """
     This method terminates the entire application using sys.exit(0).
+
     Returns
     -------
     None
