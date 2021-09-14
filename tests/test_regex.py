@@ -8,6 +8,7 @@ from project import utils
 import pyformlang
 from pyformlang import finite_automaton
 from pyformlang.finite_automaton import Symbol, DeterministicFiniteAutomaton, State
+from pyformlang.regular_expression import MisformedRegexError
 
 
 def test_regex_to_dfa():
@@ -88,3 +89,8 @@ def test_regex_to_dfa_accept(
         assert dfa.accepts(expected_word)
     for unexpected_word in unexpected:
         assert not dfa.accepts(unexpected_word)
+
+
+def test_exception():
+    with pytest.raises(MisformedRegexError):
+        utils.regex_to_dfa("*|wrong|*")
