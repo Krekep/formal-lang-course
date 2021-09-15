@@ -1,6 +1,7 @@
 from typing import List
 
-from . import bridge
+import project.bridge
+from project import bridge
 
 __all__ = ["run_console"]
 
@@ -17,10 +18,12 @@ _function_pointers = {
 def _exec_commands(commands: List[str]) -> None:
     """
     This method tries to execute user input.
+
     Parameters
     ----------
     commands: List[str]
         List of arguments to execute
+
     Returns
     -------
     None
@@ -45,6 +48,7 @@ def _exec_commands(commands: List[str]) -> None:
 def _help() -> None:
     """
     Display information about available commands.
+
     Returns
     -------
     None
@@ -65,6 +69,7 @@ def _help() -> None:
 def run_console() -> None:
     """
     Runs a console application.
+
     Returns
     -------
     None
