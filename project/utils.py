@@ -9,7 +9,7 @@ import networkx as nx
 import pyformlang
 from pyformlang.finite_automaton import (
     DeterministicFiniteAutomaton,
-    NondeterministicFiniteAutomaton,
+    NondeterministicFiniteAutomaton, EpsilonNFA,
 )
 from pyformlang.regular_expression import Regex
 
@@ -125,3 +125,29 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
     nfa = regex_to_nfa(regex)
     dfa = nfa_to_minimal_dfa(nfa)
     return dfa
+
+
+"""
+def graph_to_enfa(graph: nx.MultiDiGraph, start_vertices=None, finish_vertices=None) -> EpsilonNFA:
+    ""
+    Construction of a non-deterministic automaton from a labeled graph.
+
+    Parameters
+    ----------
+    graph: nx.MultiDiGraph
+        Labeled graph
+    start_vertices: nx.MultiDiGraph
+        Start vertices
+    finish_vertices: nx.MultiDiGraph
+        Finish vertices
+
+    Returns
+    -------
+    EpsilonNFA
+        Resulting non-deterministic automaton
+    ""
+
+    enfa = EpsilonNFA.from_networkx(graph)
+    print()
+    return enfa
+"""
