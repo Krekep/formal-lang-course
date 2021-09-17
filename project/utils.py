@@ -9,7 +9,9 @@ import networkx as nx
 import pyformlang
 from pyformlang.finite_automaton import (
     DeterministicFiniteAutomaton,
-    NondeterministicFiniteAutomaton, EpsilonNFA,
+    NondeterministicFiniteAutomaton,
+    EpsilonNFA,
+    State,
 )
 from pyformlang.regular_expression import Regex
 
@@ -19,6 +21,7 @@ __all__ = [
     "regex_to_nfa",
     "nfa_to_minimal_dfa",
     "regex_to_dfa",
+    "graph_to_nfa",
 ]
 
 
@@ -127,9 +130,10 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
     return dfa
 
 
-"""
-def graph_to_enfa(graph: nx.MultiDiGraph, start_vertices=None, finish_vertices=None) -> EpsilonNFA:
-    ""
+def graph_to_nfa(
+    graph: nx.MultiDiGraph, start_vertices: list = None, finish_vertices: list = None
+) -> NondeterministicFiniteAutomaton:
+    """
     Construction of a non-deterministic automaton from a labeled graph.
 
     Parameters
@@ -143,11 +147,24 @@ def graph_to_enfa(graph: nx.MultiDiGraph, start_vertices=None, finish_vertices=N
 
     Returns
     -------
-    EpsilonNFA
+    NondeterministicFiniteAutomaton
         Resulting non-deterministic automaton
-    ""
+    """
 
-    enfa = EpsilonNFA.from_networkx(graph)
-    print()
-    return enfa
-"""
+    nfa = NondeterministicFiniteAutomaton()
+
+    for node_from, node_to in graph.edges():
+        edge_data = graph.get_edge_data(node_from, node_to)[0]["label"]
+        nfa.add_transition(node_from, edge_data, node_to)
+
+    if not start_vertices:
+        start_vertices = list(graph.nodes())
+    if not finish_vertices:
+        finish_vertices = list(graph.nodes())
+
+    for state in start_vertices:
+        nfa.add_start_state(State(state))
+    for state in finish_vertices:
+        nfa.add_final_state(State(state))
+
+    return nfa

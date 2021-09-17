@@ -11,9 +11,40 @@ from pyformlang.finite_automaton import EpsilonNFA
 import project.utils
 from project import utils
 
-__all__ = ["get_graph_info", "create_two_cycles", "save_to_dot", "quit_comm"]
+__all__ = [
+    "get_graph_info",
+    "create_two_cycles",
+    "save_to_dot",
+    "quit_comm",
+    "graph_to_nfa",
+    "get_graph",
+]
 
 _graph_pool = {}
+_nfa_pool = {}
+
+
+def graph_to_nfa(args: Namespace) -> None:
+    """
+    This method provide use graph_to_nfa with console arguments.
+    Construction of a non-deterministic automaton from a labeled graph.
+
+    Parameters
+    ----------
+    args: argparse.Namespace
+        Parsed arguments
+
+    Returns
+    -------
+    None
+    """
+
+    graph = get_graph(args.graph_name)
+
+    nfa = utils.graph_to_nfa(graph)
+    _nfa_pool[args.graph_name] = nfa
+
+    print("Successful translated")
 
 
 def get_graph_info(args: Namespace) -> None:
@@ -23,7 +54,7 @@ def get_graph_info(args: Namespace) -> None:
 
     Parameters
     ----------
-        args: argparse.Namespace
+    args: argparse.Namespace
         Parsed arguments
 
     Returns
@@ -31,22 +62,7 @@ def get_graph_info(args: Namespace) -> None:
     None
     """
 
-    is_graph_exist = False
-    info = (None, None, None)
-
-    for graph_class in cfpq_data.DATASET.keys():
-        if args.graph_name in cfpq_data.DATASET[graph_class].keys():
-            is_graph_exist = True
-            graph = cfpq_data.graph_from_dataset(args.graph_name, verbose=False)
-            info = utils.get_graph_info(graph)
-            break
-
-    if args.graph_name in _graph_pool.keys():
-        info = utils.get_graph_info(_graph_pool[args.graph_name])
-        is_graph_exist = True
-
-    if not is_graph_exist:
-        raise Exception("No such graph exists!")
+    info = get_graph(args.graph_name)
 
     print("Graph information:")
     print("Number of nodes: ", info[0])
@@ -116,8 +132,8 @@ def quit_comm(args: Namespace) -> None:
 
     Parameters
     ----------
-    ret_code: int
-        Returned code from program
+    args: argparse.Namespace
+        Parsed arguments
 
     Returns
     -------
@@ -125,3 +141,37 @@ def quit_comm(args: Namespace) -> None:
     """
     print("Quit...")
     sys.exit(0)
+
+
+def get_graph(graph_name: str) -> nx.MultiDiGraph:
+    """
+    Return graph by name
+
+    Parameters
+    ----------
+    graph_name: str
+        Graph name
+
+    Returns
+    -------
+    nx.MultiDiGraph
+        Resulting graph
+    """
+
+    is_graph_exist = False
+    graph = None
+
+    for graph_class in cfpq_data.DATASET.keys():
+        if graph_name in cfpq_data.DATASET[graph_class].keys():
+            is_graph_exist = True
+            graph = cfpq_data.graph_from_dataset(graph_name, verbose=False)
+            break
+
+    if graph_name in _graph_pool.keys():
+        graph = _graph_pool[graph_name]
+        is_graph_exist = True
+
+    if not is_graph_exist:
+        raise Exception("No such graph exists!")
+
+    return graph
