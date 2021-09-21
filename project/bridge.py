@@ -41,7 +41,7 @@ def graph_to_nfa(args: Namespace) -> None:
 
     graph = get_graph(args.graph_name)
 
-    nfa = utils.graph_to_nfa(graph)
+    nfa = utils.graph_to_nfa(graph, args.start_vertices, args.finish_vertices)
     _nfa_pool[args.graph_name] = nfa
 
     print("Successful translated")

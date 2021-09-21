@@ -152,19 +152,35 @@ def graph_to_nfa(
     """
 
     nfa = NondeterministicFiniteAutomaton()
+    available_nodes = set()
+    for node in graph.nodes:
+        nfa.states.add(State(node))
+        available_nodes.add(node)
 
     for node_from, node_to in graph.edges():
-        edge_data = graph.get_edge_data(node_from, node_to)[0]["label"]
-        nfa.add_transition(node_from, edge_data, node_to)
+        edge_label = graph.get_edge_data(node_from, node_to)[0]["label"]
+        nfa.add_transition(node_from, edge_label, node_to)
 
     if not start_vertices:
-        start_vertices = list(graph.nodes())
-    if not finish_vertices:
-        finish_vertices = list(graph.nodes())
+        for state in nfa.states:
+            nfa.add_start_state(state)
+    else:
+        for start_vertica in start_vertices:
+            t = int(start_vertica)
+            if t not in available_nodes:
+                raise Exception(f"Node {t} does not exists in specified graph")
+            state = list(nfa.states)[t]
+            nfa.add_start_state(State(t))
 
-    for state in start_vertices:
-        nfa.add_start_state(State(state))
-    for state in finish_vertices:
-        nfa.add_final_state(State(state))
+    if not finish_vertices:
+        for state in nfa.states:
+            nfa.add_final_state(state)
+    else:
+        for finish_vertica in finish_vertices:
+            t = int(finish_vertica)
+            if t not in available_nodes:
+                raise Exception(f"Node {t} does not exists in specified graph")
+            state = list(nfa.states)[t]
+            nfa.add_final_state(State(t))
 
     return nfa
