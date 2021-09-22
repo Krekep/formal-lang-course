@@ -10,6 +10,8 @@ import pyformlang
 from pyformlang.finite_automaton import (
     DeterministicFiniteAutomaton,
     NondeterministicFiniteAutomaton,
+    EpsilonNFA,
+    State,
 )
 from pyformlang.regular_expression import Regex
 
@@ -19,6 +21,7 @@ __all__ = [
     "regex_to_nfa",
     "nfa_to_minimal_dfa",
     "regex_to_dfa",
+    "graph_to_nfa",
 ]
 
 
@@ -125,3 +128,59 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
     nfa = regex_to_nfa(regex)
     dfa = nfa_to_minimal_dfa(nfa)
     return dfa
+
+
+def graph_to_nfa(
+    graph: nx.MultiDiGraph, start_vertices: list = None, finish_vertices: list = None
+) -> NondeterministicFiniteAutomaton:
+    """
+    Construction of a non-deterministic automaton from a labeled graph.
+
+    Parameters
+    ----------
+    graph: nx.MultiDiGraph
+        Labeled graph
+    start_vertices: nx.MultiDiGraph
+        Start vertices
+    finish_vertices: nx.MultiDiGraph
+        Finish vertices
+
+    Returns
+    -------
+    NondeterministicFiniteAutomaton
+        Resulting non-deterministic automaton
+    """
+
+    nfa = NondeterministicFiniteAutomaton()
+    available_nodes = set()
+    for node in graph.nodes:
+        nfa.states.add(State(node))
+        available_nodes.add(node)
+
+    for node_from, node_to in graph.edges():
+        edge_label = graph.get_edge_data(node_from, node_to)[0]["label"]
+        nfa.add_transition(node_from, edge_label, node_to)
+
+    if not start_vertices:
+        for state in nfa.states:
+            nfa.add_start_state(state)
+    else:
+        for start_vertica in start_vertices:
+            t = int(start_vertica)
+            if t not in available_nodes:
+                raise Exception(f"Node {t} does not exists in specified graph")
+            state = list(nfa.states)[t]
+            nfa.add_start_state(State(t))
+
+    if not finish_vertices:
+        for state in nfa.states:
+            nfa.add_final_state(state)
+    else:
+        for finish_vertica in finish_vertices:
+            t = int(finish_vertica)
+            if t not in available_nodes:
+                raise Exception(f"Node {t} does not exists in specified graph")
+            state = list(nfa.states)[t]
+            nfa.add_final_state(State(t))
+
+    return nfa
