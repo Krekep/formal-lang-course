@@ -11,7 +11,8 @@ from pyformlang.finite_automaton import (
     DeterministicFiniteAutomaton,
     NondeterministicFiniteAutomaton,
     EpsilonNFA,
-    State, FiniteAutomaton,
+    State,
+    FiniteAutomaton,
 )
 from pyformlang.regular_expression import Regex
 import scipy
@@ -28,7 +29,7 @@ __all__ = [
     "matrix_to_automaton",
     "rpq",
     "intersect",
-    "get_transitive_closure"
+    "get_transitive_closure",
 ]
 
 
@@ -51,7 +52,7 @@ def get_graph_info(graph: nx.MultiDiGraph) -> Tuple[int, int, set]:
 
 
 def create_two_cycle_graph(
-        first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
+    first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
 ) -> nx.MultiDiGraph:
     """
     Create two cycle graph with labels on the edges.
@@ -96,7 +97,7 @@ def regex_to_nfa(regex: str) -> NondeterministicFiniteAutomaton:
 
 
 def nfa_to_minimal_dfa(
-        nfa: NondeterministicFiniteAutomaton,
+    nfa: NondeterministicFiniteAutomaton,
 ) -> DeterministicFiniteAutomaton:
     """
     Building a non-deterministic state automaton from a regular expression.
@@ -138,7 +139,7 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
 
 
 def graph_to_nfa(
-        graph: nx.MultiDiGraph, start_vertices: list = None, finish_vertices: list = None
+    graph: nx.MultiDiGraph, start_vertices: list = None, finish_vertices: list = None
 ) -> NondeterministicFiniteAutomaton:
     """
     Construction of a non-deterministic automaton from a labeled graph.
@@ -191,7 +192,9 @@ def graph_to_nfa(
     return nfa
 
 
-def automaton_to_matrix(automaton: FiniteAutomaton) -> Tuple[Dict, int, Set[State], Set[State], Dict]:
+def automaton_to_matrix(
+    automaton: FiniteAutomaton,
+) -> Tuple[Dict, int, Set[State], Set[State], Dict]:
     """
     Transform automaton to set of labeled boolean matrix
     Parameters
@@ -226,8 +229,9 @@ def automaton_to_matrix(automaton: FiniteAutomaton) -> Tuple[Dict, int, Set[Stat
     return matrix, num_states, start_states, final_states, state_indices
 
 
-def matrix_to_automaton(matrix: Dict, start_states: Set[State],
-                        final_states: Set[State]) -> NondeterministicFiniteAutomaton:
+def matrix_to_automaton(
+    matrix: Dict, start_states: Set[State], final_states: Set[State]
+) -> NondeterministicFiniteAutomaton:
     """
     Transform set of labeled boolean matrix to automaton.
     Parameters
@@ -280,7 +284,9 @@ def get_transitive_closure(matrix: sparse.csr_matrix) -> sparse.csr_matrix:
     return matrix
 
 
-def intersect(first: FiniteAutomaton, second: FiniteAutomaton) -> Tuple[Dict, int, Set[State], Set[State], Dict]:
+def intersect(
+    first: FiniteAutomaton, second: FiniteAutomaton
+) -> Tuple[Dict, int, Set[State], Set[State], Dict]:
     """
     Get intersection of two automatons
     Parameters
@@ -295,8 +301,20 @@ def intersect(first: FiniteAutomaton, second: FiniteAutomaton) -> Tuple[Dict, in
     Tuple[Dict, int, Set[State], Set[State], Dict]
         Set of labeled matrix, size of matrix, set of start states, state of final states, map of state and their indices
     """
-    first_matrix, first_size, first_start, first_final, first_states = automaton_to_matrix(first)
-    second_matrix, second_size, second_start, second_final, second_states = automaton_to_matrix(second)
+    (
+        first_matrix,
+        first_size,
+        first_start,
+        first_final,
+        first_states,
+    ) = automaton_to_matrix(first)
+    (
+        second_matrix,
+        second_size,
+        second_start,
+        second_final,
+        second_states,
+    ) = automaton_to_matrix(second)
     res_matrix = {}
     res_size = first_size * second_size
     res_states = {}
@@ -306,9 +324,13 @@ def intersect(first: FiniteAutomaton, second: FiniteAutomaton) -> Tuple[Dict, in
 
     for label in common_labels:
         if label not in first_matrix.keys():
-            first_matrix[label] = sparse.csr_matrix((first_size, first_size), dtype=bool)
+            first_matrix[label] = sparse.csr_matrix(
+                (first_size, first_size), dtype=bool
+            )
         if label not in second_matrix.keys():
-            second_matrix[label] = sparse.csr_matrix((second_size, second_size), dtype=bool)
+            second_matrix[label] = sparse.csr_matrix(
+                (second_size, second_size), dtype=bool
+            )
 
     for label in common_labels:
         res_matrix[label] = sparse.kron(
@@ -329,11 +351,12 @@ def intersect(first: FiniteAutomaton, second: FiniteAutomaton) -> Tuple[Dict, in
     return res_matrix, res_size, res_start, res_final, res_states
 
 
-def rpq(graph: nx.MultiDiGraph,
-        regex: str,
-        start_vertices: set = None,
-        final_vertices: set = None,
-        ) -> set:
+def rpq(
+    graph: nx.MultiDiGraph,
+    regex: str,
+    start_vertices: set = None,
+    final_vertices: set = None,
+) -> set:
     """
     Get set of reachable pairs of graph vertices
     Parameters
@@ -354,8 +377,13 @@ def rpq(graph: nx.MultiDiGraph,
     """
     regex_dfa = regex_to_dfa(regex)
 
-    intersected_matrix, intersected_size, intersected_start, intersected_final, intersected_states = intersect(
-        graph_to_nfa(graph, start_vertices, final_vertices), regex_dfa)
+    (
+        intersected_matrix,
+        intersected_size,
+        intersected_start,
+        intersected_final,
+        intersected_states,
+    ) = intersect(graph_to_nfa(graph, start_vertices, final_vertices), regex_dfa)
     tc_matrix = sparse.csr_matrix((intersected_size, intersected_size), dtype=bool)
     for label in intersected_matrix.keys():
         tc_matrix += intersected_matrix[label]

@@ -1,8 +1,19 @@
 import pytest
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State, DeterministicFiniteAutomaton
+from pyformlang.finite_automaton import (
+    NondeterministicFiniteAutomaton,
+    State,
+    DeterministicFiniteAutomaton,
+)
+from scipy import sparse
 
-from project.utils import automaton_to_matrix, intersect, matrix_to_automaton, get_transitive_closure, rpq, \
-    create_two_cycle_graph
+from project.utils import (
+    automaton_to_matrix,
+    intersect,
+    matrix_to_automaton,
+    get_transitive_closure,
+    rpq,
+    create_two_cycle_graph,
+)
 
 
 def test_transitive_closure():
@@ -18,8 +29,11 @@ def test_transitive_closure():
         ]
     )
     matrix, size, start, final, states = automaton_to_matrix(nfa)
-    tc = get_transitive_closure(matrix)
-    assert tc.sum() == tc.size
+    tc_matrix = sparse.csr_matrix((size, size), dtype=bool)
+    for label in matrix.keys():
+        tc_matrix += matrix[label]
+    tc_matrix = get_transitive_closure(tc_matrix)
+    assert tc_matrix.sum() == tc_matrix.size
 
 
 def test_intersection():
@@ -39,10 +53,17 @@ def test_intersection():
 
     expected_nfa = first_nfa.get_intersection(second_nfa)
 
-    intersected_matrix, intersected_size, intersected_start, intersected_final, intersected_states = intersect(
-        first_nfa, second_nfa)
+    (
+        intersected_matrix,
+        intersected_size,
+        intersected_start,
+        intersected_final,
+        intersected_states,
+    ) = intersect(first_nfa, second_nfa)
 
-    actual_nfa = matrix_to_automaton(intersected_matrix, intersected_start, intersected_final)
+    actual_nfa = matrix_to_automaton(
+        intersected_matrix, intersected_start, intersected_final
+    )
 
     assert actual_nfa.is_equivalent_to(expected_nfa)
 
