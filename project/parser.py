@@ -103,4 +103,35 @@ def parser_initialize() -> argparse.ArgumentParser:
     )
     parser_graph_to_nfa.set_defaults(func=bridge.graph_to_nfa)
 
+    # graph-intersect-regex
+    parser_graph_intersect_regex = subparsers.add_parser(
+        "graph-intersect-regex", help="Get intersection of graph with regex"
+    )
+    parser_graph_intersect_regex.add_argument(
+        "graph_name", metavar="graph-name", help="Graph name"
+    )
+    parser_graph_intersect_regex.add_argument(
+        "--start-vertices",
+        dest="start_vertices",
+        metavar="start-vertices",
+        nargs="*",
+        default=None,
+        help="Start vertices for non-deterministic automaton",
+    )
+    parser_graph_intersect_regex.add_argument(
+        "--finish-vertices",
+        dest="finish_vertices",
+        metavar="finish-vertices",
+        nargs="*",
+        default=None,
+        help="Finish vertices for non-deterministic automaton",
+    )
+    parser_graph_intersect_regex.add_argument(
+        "regex",
+        metavar="regex",
+        nargs="+",
+        help="Regular expression",
+    )
+    parser_graph_intersect_regex.set_defaults(func=bridge.rpq)
+
     return parser

@@ -47,6 +47,16 @@ def graph_to_nfa(args: Namespace) -> None:
     print("Successful translated")
 
 
+def rpq(args: Namespace) -> None:
+    graph = get_graph(args.graph_name)
+    regex = " ".join(args.regex)
+    result_rpq = utils.rpq(graph, regex, args.start_vertices, args.finish_vertices)
+
+    print("Result of RPQ:")
+    print(result_rpq)
+    print("End.")
+
+
 def get_graph_info(args: Namespace) -> None:
     """
     This method provide use get_graph_info with console arguments.
