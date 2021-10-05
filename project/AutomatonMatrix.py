@@ -1,5 +1,9 @@
 from scipy import sparse
-from pyformlang.finite_automaton import State, NondeterministicFiniteAutomaton, FiniteAutomaton
+from pyformlang.finite_automaton import (
+    State,
+    NondeterministicFiniteAutomaton,
+    FiniteAutomaton,
+)
 
 __all__ = ["AutomatonSetOfMatrix"]
 
@@ -35,7 +39,9 @@ class AutomatonSetOfMatrix:
         automaton_matrix.num_states = len(automaton.states)
         automaton_matrix.start_states = automaton.start_states
         automaton_matrix.final_states = automaton.final_states
-        automaton_matrix.state_indices = {state: idx for idx, state in enumerate(automaton.states)}
+        automaton_matrix.state_indices = {
+            state: idx for idx, state in enumerate(automaton.states)
+        }
 
         for s_from, trans in automaton.to_dict().items():
             for label, states_to in trans.items():
@@ -46,7 +52,8 @@ class AutomatonSetOfMatrix:
                     idx_to = automaton_matrix.state_indices[s_to]
                     if label not in automaton_matrix.bool_matrices.keys():
                         automaton_matrix.bool_matrices[label] = sparse.csr_matrix(
-                            (automaton_matrix.num_states, automaton_matrix.num_states), dtype=bool
+                            (automaton_matrix.num_states, automaton_matrix.num_states),
+                            dtype=bool,
                         )
                     automaton_matrix.bool_matrices[label][idx_from, idx_to] = True
 
@@ -148,13 +155,21 @@ class AutomatonSetOfMatrix:
 
         for state_first, state_first_idx in self.state_indices.items():
             for state_second, state_second_idx in other.state_indices.items():
-                new_state = new_state_idx = state_first_idx * other.num_states + state_second_idx
+                new_state = new_state_idx = (
+                    state_first_idx * other.num_states + state_second_idx
+                )
                 res.state_indices[new_state] = new_state_idx
 
-                if state_first in self.start_states and state_second in other.start_states:
+                if (
+                    state_first in self.start_states
+                    and state_second in other.start_states
+                ):
                     res.start_states.add(new_state)
 
-                if state_first in self.final_states and state_second in other.final_states:
+                if (
+                    state_first in self.final_states
+                    and state_second in other.final_states
+                ):
                     res.final_states.add(new_state)
 
         return res
