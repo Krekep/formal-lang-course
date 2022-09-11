@@ -15,6 +15,10 @@ def test_num_edges():
 
 
 def test_labels():
-    actual_labels = set(attributes["label"] for (_, _, attributes) in _actual_graph.edges.data())
-    expected_labels = set(attributes["label"] for (_, _, attributes) in _actual_graph.edges.data())
+    actual_labels = set(
+        attributes["label"] for (_, _, attributes) in _actual_graph.edges.data()
+    )
+    expected_labels = set(
+        attributes["label"] for (_, _, attributes) in _actual_graph.edges.data()
+    )
     assert actual_labels.__eq__(expected_labels)
