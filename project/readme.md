@@ -12,7 +12,7 @@
 
 ### Граф с двумя циклами
 ```bash
-create-graph two-cycles [-h] name first-cycle-vertices second-cycle-first_cycle_vertices [--edge-labels L1 L2]
+create-graph two-cycles [-h] name [--folder_path path] first-cycle-vertices second-cycle-first_cycle_vertices [--edge-labels L1 L2]
 ```
 #### Пример
 ```bash

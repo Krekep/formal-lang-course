@@ -42,6 +42,13 @@ def parser_initialize() -> argparse.ArgumentParser:
         "graph_name", metavar="graph-name", help="graph name"
     )
     parser_gen_graph_two_cycles.add_argument(
+        "--folder_path",
+        type=str,
+        dest="folder_path",
+        default="./",
+        help="path to folder",
+    )
+    parser_gen_graph_two_cycles.add_argument(
         "first_cycle_nodes",
         metavar="first-cycle-nodes",
         help="number of nodes in the first cycle",

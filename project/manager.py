@@ -1,6 +1,5 @@
 import sys
 from argparse import Namespace
-from pathlib import Path
 
 import cfpq_data
 import networkx as nx
@@ -36,15 +35,15 @@ def get_graph_info(args: Namespace) -> None:
     info = graph_utils.get_graph_info(get_graph(args.graph_name))
 
     print("Graph information:")
-    print("Number of nodes: ", info[0])
-    print("Number of edges: ", info[1])
-    print("Labels: ", *(info[2]))
+    print("Number of nodes: ", info.nodes)
+    print("Number of edges: ", info.edges)
+    print("Labels: ", *(info.labels))
 
 
 def create_two_cycles(args: Namespace) -> None:
     """
-    This method provide use create_two_cycles with console arguments.
-    Create named and labeled graph with two cycles.
+    This method provide use create_two_cycles and export_graph_to_dot with console arguments.
+    Create named and labeled graph with two cycles and export to .dot file.
 
     Parameters
     ----------
@@ -62,7 +61,12 @@ def create_two_cycles(args: Namespace) -> None:
 
     _graph_pool[args.graph_name] = graph
 
+    path_to_dot_script = graph_utils.export_graph_to_dot(
+        graph, args.graph_name, args.folder_path
+    )
+
     print(f"Graph '{args.graph_name}' have been created.")
+    print(f"Graph was saved in {path_to_dot_script}")
 
 
 def save_to_dot(args: Namespace) -> None:
@@ -80,21 +84,13 @@ def save_to_dot(args: Namespace) -> None:
     None
     """
 
-    if args.graph_name not in _graph_pool.keys():
-        raise Exception("No graph exist with this name!")
+    graph = get_graph(args.graph_name)
 
-    graph = _graph_pool[args.graph_name]
+    path_to_dot_script = graph_utils.export_graph_to_dot(
+        graph, args.graph_name, args.folder_path
+    )
 
-    graph_dot = nx.drawing.nx_pydot.to_pydot(graph)
-    result_path = f"{args.folder_path}/{args.graph_name}.dot"
-    result_file = Path(result_path)
-
-    if not result_file.is_file():
-        open(result_file, "w")
-
-    graph_dot.write_raw(result_path)
-
-    print(f"Graph was saved in {result_path}")
+    print(f"Graph was saved in {path_to_dot_script}")
 
 
 def get_graph(graph_name: str) -> nx.MultiDiGraph:
@@ -112,20 +108,16 @@ def get_graph(graph_name: str) -> nx.MultiDiGraph:
         Resulting graph
     """
 
-    is_graph_exist = False
     graph = None
-
-    for graph_class in cfpq_data.DATASET.keys():
-        if graph_name in cfpq_data.DATASET[graph_class].keys():
-            is_graph_exist = True
-            graph = cfpq_data.graph_from_dataset(graph_name, verbose=False)
-            break
+    graphs_in_cfpq = cfpq_data.DATASET
+    if graph_name in graphs_in_cfpq:
+        graph_path = cfpq_data.download(graph_name)
+        graph = cfpq_data.graph_from_csv(graph_path)
 
     if graph_name in _graph_pool.keys():
         graph = _graph_pool[graph_name]
-        is_graph_exist = True
 
-    if not is_graph_exist:
+    if graph is None:
         raise Exception("No such graph exists!")
 
     return graph
