@@ -50,5 +50,5 @@ def create_two_cycle_graph(
         Generated graph with two cycles
     """
     return cfpq_data.labeled_two_cycles_graph(
-        first_vertices, second_vertices, edge_labels=edge_labels, verbose=False
+        first_vertices, second_vertices, labels=edge_labels
     )
