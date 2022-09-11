@@ -25,7 +25,7 @@ def get_graph_info(graph: nx.MultiDiGraph) -> Tuple[int, int, set]:
     return (
         graph.number_of_nodes(),
         graph.number_of_edges(),
-        cfpq_data.get_labels(graph, verbose=False),
+        set(attributes["label"] for (_, _, attributes) in graph.edges.data()),
     )
 
 
