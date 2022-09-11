@@ -22,11 +22,15 @@ def get_graph_info(graph: nx.MultiDiGraph) -> Tuple[int, int, set]:
     Tuple[int, int, set]
         Info about graph
     """
-    return graph.number_of_nodes(), graph.number_of_edges(), cfpq_data.get_labels(graph, verbose=False)
+    return (
+        graph.number_of_nodes(),
+        graph.number_of_edges(),
+        cfpq_data.get_labels(graph, verbose=False)
+    )
 
 
 def create_two_cycle_graph(
-        first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
+    first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
 ) -> nx.MultiDiGraph:
     """
     Create two cycle graph with labels on the edges.

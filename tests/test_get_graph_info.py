@@ -2,9 +2,7 @@ import cfpq_data
 import pytest
 from project import graph_utils
 
-_test_graph = graph_utils.create_two_cycle_graph(
-    10, 5, edge_labels=("a", "b")
-)
+_test_graph = graph_utils.create_two_cycle_graph(10, 5, edge_labels=("a", "b"))
 
 
 def test_get_nodes():
