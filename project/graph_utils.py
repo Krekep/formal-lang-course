@@ -106,9 +106,9 @@ def graph_to_nfa(
     ----------
     graph: nx.MultiDiGraph
         Labeled graph
-    start_vertices: nx.MultiDiGraph
+    start_vertices: list
         Start vertices
-    finish_vertices: nx.MultiDiGraph
+    finish_vertices: list
         Finish vertices
 
     Returns

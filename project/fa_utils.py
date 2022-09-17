@@ -53,8 +53,8 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
 
     Parameters
     ----------
-    regex: NondeterministicFiniteAutomaton
-        Non-deterministic Finite Automaton.
+    regex: str
+        Regular expression in string format.
 
     Returns
     -------
