@@ -51,38 +51,49 @@ def test_get_min_dfa():
     [
         ("", [], [[Symbol("1")], [Symbol("0")]]),
         (
-                "(1 0) | (1 1) | (0 1) | (0 1 0 1)*",
+            "(1 0) | (1 1) | (0 1) | (0 1 0 1)*",
+            [
+                [],
+                [Symbol("1"), Symbol("0")],
+                [Symbol("1"), Symbol("1")],
+                [Symbol("0"), Symbol("1")],
+                [Symbol("0"), Symbol("1"), Symbol("0"), Symbol("1")],
                 [
-                    [],
-                    [Symbol("1"), Symbol("0")],
-                    [Symbol("1"), Symbol("1")],
-                    [Symbol("0"), Symbol("1")],
-                    [Symbol("0"), Symbol("1"), Symbol("0"), Symbol("1")],
-                    [
-                        Symbol("0"),
-                        Symbol("1"),
-                        Symbol("0"),
-                        Symbol("1"),
-                        Symbol("0"),
-                        Symbol("1"),
-                        Symbol("0"),
-                        Symbol("1"),
-                    ],
+                    Symbol("0"),
+                    Symbol("1"),
+                    Symbol("0"),
+                    Symbol("1"),
+                    Symbol("0"),
+                    Symbol("1"),
+                    Symbol("0"),
+                    Symbol("1"),
                 ],
-                [[Symbol("1")], [Symbol("0")], [Symbol("1"), Symbol("0"), Symbol("1")],
-                 [Symbol("0"), Symbol("1"), Symbol("0"), Symbol("1"), Symbol("1"), Symbol("0")]],
+            ],
+            [
+                [Symbol("1")],
+                [Symbol("0")],
+                [Symbol("1"), Symbol("0"), Symbol("1")],
+                [
+                    Symbol("0"),
+                    Symbol("1"),
+                    Symbol("0"),
+                    Symbol("1"),
+                    Symbol("1"),
+                    Symbol("0"),
+                ],
+            ],
         ),
         (
-                "a*",
-                [[], [Symbol("a")], [Symbol("a"), Symbol("a")]],
-                [[Symbol("b")], [Symbol("c"), Symbol("d"), Symbol("e")], [Symbol("a*")]],
+            "a*",
+            [[], [Symbol("a")], [Symbol("a"), Symbol("a")]],
+            [[Symbol("b")], [Symbol("c"), Symbol("d"), Symbol("e")], [Symbol("a*")]],
         ),
     ],
 )
 def test_regex_to_dfa_accept(
-        regex: str,
-        expected: List[Iterable[Symbol]],
-        unexpected: List[Iterable[Symbol]],
+    regex: str,
+    expected: List[Iterable[Symbol]],
+    unexpected: List[Iterable[Symbol]],
 ):
     dfa = fa_utils.regex_to_dfa(regex)
     for expected_word in expected:
