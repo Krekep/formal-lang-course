@@ -42,7 +42,9 @@ def test_nfa_equals(start_vertices, finish_vertices):
     for state in finish_vertices:
         expected_nfa.add_final_state(State(state))
 
-    nfa_from_graph = graph_utils.graph_to_nfa(_test_graph, start_vertices, finish_vertices)
+    nfa_from_graph = graph_utils.graph_to_nfa(
+        _test_graph, start_vertices, finish_vertices
+    )
 
     assert nfa_from_graph.is_equivalent_to(expected_nfa)
 
@@ -68,4 +70,3 @@ def test_nfa_equals(start_vertices, finish_vertices):
 def test_word_accept(word, is_accept):
     nfa = graph_utils.graph_to_nfa(_test_graph, [0, 4], [1, 3])
     assert nfa.accepts(word) == is_accept
-
