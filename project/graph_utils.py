@@ -7,7 +7,10 @@ from collections import namedtuple
 from pathlib import Path
 import cfpq_data
 import networkx as nx
-
+from pyformlang.finite_automaton import (
+    NondeterministicFiniteAutomaton,
+    State,
+)
 
 GraphInfo = namedtuple("GraphInfo", "nodes edges labels")
 
@@ -91,3 +94,57 @@ def export_graph_to_dot(
     graph_dot.write_raw(result_path)
 
     return result_path
+
+
+def graph_to_nfa(
+    graph: nx.MultiDiGraph, start_vertices: list = None, finish_vertices: list = None
+) -> NondeterministicFiniteAutomaton:
+    """
+    Construction of a non-deterministic automaton from a labeled graph.
+
+    Parameters
+    ----------
+    graph: nx.MultiDiGraph
+        Labeled graph
+    start_vertices: nx.MultiDiGraph
+        Start vertices
+    finish_vertices: nx.MultiDiGraph
+        Finish vertices
+
+    Returns
+    -------
+    NondeterministicFiniteAutomaton
+        Resulting non-deterministic automaton
+    """
+
+    nfa = NondeterministicFiniteAutomaton()
+    available_nodes = set()
+    for node in graph.nodes:
+        nfa.states.add(State(node))
+        available_nodes.add(node)
+
+    for node_from, node_to in graph.edges():
+        edge_label = graph.get_edge_data(node_from, node_to)[0]["label"]
+        nfa.add_transition(node_from, edge_label, node_to)
+
+    if start_vertices is None:
+        for state in nfa.states:
+            nfa.add_start_state(state)
+    else:
+        for start_vertica in start_vertices:
+            t = int(start_vertica)
+            if t not in available_nodes:
+                raise Exception(f"Node {t} does not exists in specified graph")
+            nfa.add_start_state(State(t))
+
+    if finish_vertices is None:
+        for state in nfa.states:
+            nfa.add_final_state(state)
+    else:
+        for finish_vertica in finish_vertices:
+            t = int(finish_vertica)
+            if t not in available_nodes:
+                raise Exception(f"Node {t} does not exists in specified graph")
+            nfa.add_final_state(State(t))
+
+    return nfa
