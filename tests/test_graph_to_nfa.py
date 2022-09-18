@@ -4,15 +4,36 @@ import pytest
 import project
 from project import graph_utils
 
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State
+from pyformlang.finite_automaton import (
+    EpsilonNFA,
+    NondeterministicFiniteAutomaton,
+    State,
+)
 
 
 _test_graph = cfpq_data.labeled_two_cycles_graph(2, 2, labels=("a", "b"))
 
 
 def test_is_not_deterministic():
-    nfa = graph_utils.graph_to_nfa(_test_graph)
+    nfa = graph_utils.graph_to_nfa(_test_graph, [0, 1], [3, 4])
+    assert isinstance(nfa, EpsilonNFA)
+    assert isinstance(nfa, NondeterministicFiniteAutomaton)
     assert not nfa.is_deterministic()
+
+
+def test_is_not_deterministic_multitransitions():
+    graph = cfpq_data.labeled_two_cycles_graph(2, 2, labels=("a", "a"))
+    nfa = graph_utils.graph_to_nfa(graph, [0, 1], [3, 4])
+    assert isinstance(nfa, EpsilonNFA)
+    assert isinstance(nfa, NondeterministicFiniteAutomaton)
+    assert not nfa.is_deterministic()
+
+
+def test_is_deterministic():
+    nfa = graph_utils.graph_to_nfa(_test_graph, [0], [4])
+    assert isinstance(nfa, EpsilonNFA)
+    assert isinstance(nfa, NondeterministicFiniteAutomaton)
+    assert nfa.is_deterministic()
 
 
 @pytest.mark.parametrize(
