@@ -42,6 +42,13 @@ def test_get_min_dfa():
     expected_dfa.add_transition(state_1, symbol_b, state_2)
 
     actual_dfa = fa_utils.regex_to_dfa("((a | c) b)")
+    if not expected_dfa.is_equivalent_to(actual_dfa):
+        # very rare, but this test fails.
+        # I suspect that the automaton is built in a non-deterministic way and cannot always be reduced to a minimum
+        print(actual_dfa.start_state)
+        print(actual_dfa.final_states)
+        print(actual_dfa.get_number_transitions())
+        print(actual_dfa.to_dict())
     assert expected_dfa.is_equivalent_to(actual_dfa)
     assert len(actual_dfa.states) == len(expected_dfa.states)
 
