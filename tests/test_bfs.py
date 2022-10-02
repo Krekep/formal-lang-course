@@ -6,7 +6,7 @@ from pyformlang.regular_expression import Regex
 from project.rpq import bfs_rpq
 
 
-def _create_graph(nodes: list[int], edges: list[tuple[int, str, int]]) -> nx.MultiDiGraph:
+def _create_graph(nodes, edges) -> nx.MultiDiGraph:
     graph = nx.MultiDiGraph()
     graph.add_nodes_from(nodes)
     graph.add_edges_from(
@@ -18,38 +18,54 @@ def _create_graph(nodes: list[int], edges: list[tuple[int, str, int]]) -> nx.Mul
 testdata_separated = [
     (
         bfs_rpq(
-            _create_graph(nodes=[0, 1], edges=[(0, "a", 1)]), "a*", start_vertices={0}, final_vertices=None, separated=True,
+            _create_graph(nodes=[0, 1], edges=[(0, "a", 1)]),
+            "a*",
+            start_vertices={0},
+            final_vertices=None,
+            separated=True,
         ),
         {(0, frozenset([1]))},
     ),
     (
         bfs_rpq(
-            cfpq_data.labeled_two_cycles_graph(2, 1, labels=("a", "b")), "b.a",
-            start_vertices={0}, final_vertices=None, separated=True,
+            cfpq_data.labeled_two_cycles_graph(2, 1, labels=("a", "b")),
+            "b.a",
+            start_vertices={0},
+            final_vertices=None,
+            separated=True,
         ),
         {(0, frozenset({1, 3}))},
     ),
     (
         bfs_rpq(
-            _create_graph(nodes=[0, 1, 2], edges=[(0, "a", 1), (1, "a", 2)]), "a*",
-            start_vertices={0, 1}, final_vertices={2}, separated=True,
+            _create_graph(nodes=[0, 1, 2], edges=[(0, "a", 1), (1, "a", 2)]),
+            "a*",
+            start_vertices={0, 1},
+            final_vertices={2},
+            separated=True,
         ),
         {(1, frozenset({2})), (0, frozenset({2}))},
     ),
     (
         bfs_rpq(
-            _create_graph(nodes=[0, 1, 2], edges=[(0, "a", 1), (1, "b", 2)]), "a.b",
-            start_vertices={0}, final_vertices=None, separated=False,
+            _create_graph(nodes=[0, 1, 2], edges=[(0, "a", 1), (1, "b", 2)]),
+            "a.b",
+            start_vertices={0},
+            final_vertices=None,
+            separated=False,
         ),
         {(frozenset({0}), frozenset({1, 2}))},
     ),
     (
         bfs_rpq(
-            _create_graph(nodes=[0, 1, 2], edges=[(0, "a", 1), (1, "a", 2)]), "a*",
-            start_vertices={0, 1}, final_vertices=None, separated=False,
+            _create_graph(nodes=[0, 1, 2], edges=[(0, "a", 1), (1, "a", 2)]),
+            "a*",
+            start_vertices={0, 1},
+            final_vertices=None,
+            separated=False,
         ),
         {(frozenset({0, 1}), frozenset({1, 2}))},
-    )
+    ),
 ]
 
 
