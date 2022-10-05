@@ -54,7 +54,7 @@ testdata_separated = [
             final_vertices=None,
             separated=False,
         ),
-        {(frozenset({0}), frozenset({1, 2}))},
+        {frozenset({1, 2})},
     ),
     (
         bfs_rpq(
@@ -64,7 +64,7 @@ testdata_separated = [
             final_vertices=None,
             separated=False,
         ),
-        {(frozenset({0, 1}), frozenset({1, 2}))},
+        {frozenset({1, 2})},
     ),
 ]
 

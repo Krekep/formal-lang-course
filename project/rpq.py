@@ -326,7 +326,7 @@ def _bfs_based_rpq(
     Returns
     -------
     p: sparse.csr_matrix
-        Adjacency matrix where (i, j) = True if `i` in v_src and j not in v_src and w is reachable from v_src
+        Adjacency matrix where (i, j) = True if `i` in v_src and `j` is reachable from v_src
     """
 
     p = _build_adj_empty_matrix(g)
@@ -367,7 +367,7 @@ def bfs_rpq(
     start_vertices: set = None,
     final_vertices: set = None,
     separated: bool = False,
-) -> set[tuple[set, set]] | set[tuple[int, set]]:
+) -> set[tuple[int, frozenset] | frozenset]:
     """
     Get set of reachable pairs of graph vertices
 
@@ -382,7 +382,7 @@ def bfs_rpq(
     final_vertices
         Final vertices for graph
     separated
-        Process for each start vertica or for set of start vertices
+        Process for each start vertex or for set of start vertices
 
     Returns
     -------
@@ -391,8 +391,6 @@ def bfs_rpq(
     """
     regex_automaton = regex_to_dfa(regex)
     rpq_result = _bfs_based_rpq(regex_automaton, graph, start_vertices)
-    for node_from, node_to in graph.edges():
-        print(node_from, node_to, graph.get_edge_data(node_from, node_to)[0]["label"])
 
     if final_vertices is None:
         final_vertices = set()
@@ -404,17 +402,17 @@ def bfs_rpq(
         for s_v in start_vertices:
             temp = list()
             row = rpq_result.getrow(s_v)
-            for vertica in row.indices:
-                if vertica in final_vertices:
-                    temp.append(vertica)
+            for vertex in row.indices:
+                if vertex in final_vertices:
+                    temp.append(vertex)
             res.add((s_v, frozenset(temp)))
     else:
         reachable_vertices = list()
         for s_v in start_vertices:
             row = rpq_result.getrow(s_v)
-            for vertica in row.indices:
-                if vertica in final_vertices:
-                    reachable_vertices.append(vertica)
-        res.add((frozenset(start_vertices), frozenset(reachable_vertices)))
+            for vertex in row.indices:
+                if vertex in final_vertices:
+                    reachable_vertices.append(vertex)
+        res.add(frozenset(reachable_vertices))
 
     return res
