@@ -118,7 +118,7 @@ def get_graph(graph_name: str) -> nx.MultiDiGraph:
         graph = _graph_pool[graph_name]
 
     if graph is None:
-        raise Exception("No such graph exists!")
+        raise Exception(f"No {graph_name} graph exists!")
 
     return graph
 
