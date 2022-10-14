@@ -164,8 +164,9 @@ def _create_masks(
     g_size = len(g.nodes)
 
     id = sparse.csr_matrix((r_size, r_size), dtype=bool)
-    for i, _ in enumerate(r.start_states):
-        id[i, i] = 1
+    for i, state in enumerate(r.states):
+        if state in r.start_states:
+            id[i, i] = 1
     front = sparse.csr_matrix(
         (r_size, g_size),
         dtype=bool,
@@ -237,8 +238,7 @@ def _extract_left_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     """
 
     extr_size = m.shape[0]
-    extr_columns = np.arange(extr_size)
-    return m[:, extr_columns]
+    return m[:, :extr_size]
 
 
 def _extract_right_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
@@ -257,8 +257,7 @@ def _extract_right_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     """
 
     extr_size = m.shape[0]
-    extr_columns = np.arange(extr_size, m.shape[1])
-    return m[:, extr_columns]
+    return m[:, extr_size:]
 
 
 def _transform_front_part(front_part: sparse.csr_matrix) -> sparse.csr_matrix:
@@ -363,19 +362,19 @@ def _bfs_based_rpq(
             # not processing unchanged matrix
             if num_front_matrix in not_updated_matrix:
                 continue
-            temp_m = []  # list of matrix per label
+            new_front = sparse.csr_matrix(
+                init_m[num_front_matrix].shape,
+                dtype=bool,
+            )
             for label in labels:
                 # multiply D matrix and current front
-                temp_m.append(init_m[num_front_matrix].dot(d[label]))
-
+                temp = init_m[num_front_matrix].dot(d[label])
                 # transform to right form
-                temp_m[-1] = _transform_front_part(temp_m[-1])
-                visited[num_front_matrix] += temp_m[-1]  # update visited vertices
+                new_front += _transform_front_part(temp)
+                visited[num_front_matrix] += new_front  # update visited vertices
 
             # change front to new
-            init_m[num_front_matrix] = temp_m[0]
-            for i in range(1, len(temp_m)):
-                init_m[num_front_matrix] += temp_m[i]
+            init_m[num_front_matrix] = new_front
 
             # count nonzero values
             if old_nnz[num_front_matrix] == visited[num_front_matrix].nnz:
@@ -431,9 +430,11 @@ def bfs_rpq(
     res = set()
     if separated:
         for s_v in start_vertices:
-            visited_per_start = rpq_result[s_v]
+            visited_per_start = _extract_right_submatrix(rpq_result[s_v])
             temp = list()
-            for i, automaton_final_state in enumerate(regex_automaton.final_states):
+            for i, automaton_state in enumerate(regex_automaton.states):
+                if not (automaton_state in regex_automaton.final_states):
+                    continue
                 row = visited_per_start.getrow(i)
                 for vertex in row.indices:
                     if vertex in final_vertices:
@@ -441,8 +442,11 @@ def bfs_rpq(
             res.add((s_v, frozenset(temp)))
     else:
         reachable_vertices = list()
-        for i, automaton_final_state in enumerate(regex_automaton.final_states):
-            row = rpq_result[0].getrow(i)
+        visited_per_start = _extract_right_submatrix(rpq_result[0])
+        for i, automaton_state in enumerate(regex_automaton.states):
+            if not (automaton_state in regex_automaton.final_states):
+                continue
+            row = visited_per_start.getrow(i)
             for vertex in row.indices:
                 if vertex in final_vertices:
                     reachable_vertices.append(vertex)
