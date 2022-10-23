@@ -14,7 +14,7 @@ from project.cfg_utils import cfg_to_wcnf
             """
                 S -> S S
                 S -> epsilon
-            """
+            """,
         ),
         (
             """
@@ -24,7 +24,7 @@ from project.cfg_utils import cfg_to_wcnf
             """,
             """
                 S -> b
-            """
+            """,
         ),
     ],
 )
@@ -39,26 +39,26 @@ def test_wcnf(cfg, expected):
     "cfg, expected_eps_vars",
     [
         (
-                """
+            """
                     S -> S S | epsilon
                 """,
-                {"S"},
+            {"S"},
         ),
         (
-                """
+            """
                     S -> S S | A
                     A -> B | epsilon
                     B -> epsilon
                 """,
-                {"S"},
+            {"S"},
         ),
         (
-                """
+            """
                     S -> A a | S a
                     A -> epsilon
                     B -> epsilon
                 """,
-                {"A"},
+            {"A"},
         ),
     ],
 )
@@ -72,24 +72,24 @@ def test_eps_generating(cfg, expected_eps_vars):
     "cfg, contained_words",
     [
         (
-                """
+            """
                     S -> epsilon
                     A -> a | b | c | d
                 """,
-                {
-                    True: [""],
-                    False: ["a", "b", "c", "d"],
-                },
+            {
+                True: [""],
+                False: ["a", "b", "c", "d"],
+            },
         ),
         (
-                """
+            """
                     S -> a S b S
                     S -> epsilon
                 """,
-                {
-                    True: ["", "aaabbb", "abaabb", "ababab"],
-                    False: ["abc", "aa", "bb", "ababa"],
-                },
+            {
+                True: ["", "aaabbb", "abaabb", "ababab"],
+                False: ["abc", "aa", "bb", "ababa"],
+            },
         ),
     ],
 )

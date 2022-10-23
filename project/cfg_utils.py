@@ -28,7 +28,7 @@ def cfg_to_wcnf(cfg: str | c.CFG, start: str = None) -> c.CFG:
     wcnf_cfg = wcnf_cfg.remove_useless_symbols()
     wcnf_productions = wcnf_cfg._get_productions_with_only_single_terminals()
     wcnf_productions = wcnf_cfg._decompose_productions(wcnf_productions)
-    
+
     return c.CFG(start_symbol=wcnf_cfg._start_symbol, productions=set(wcnf_productions))
 
 
