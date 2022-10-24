@@ -47,7 +47,7 @@ from project.cfg_utils import cfg_to_wcnf
                 B2 -> b
                 C2 -> c
                 D2 -> d
-                E -> e 
+                E -> e
             """,
             {
                 True: ["abcde"],
@@ -97,7 +97,8 @@ def test_wcnf(cfg, expected, contained_word):
     assert all(
         actual.contains(w) and wcnf_expected.contains(w) for w in contained_word[True]
     ) and all(
-        not actual.contains(w) and not wcnf_expected.contains(w) for w in contained_word[False]
+        not actual.contains(w) and not wcnf_expected.contains(w)
+        for w in contained_word[False]
     )
     assert len(actual.productions) == len(wcnf_expected.productions)
 
