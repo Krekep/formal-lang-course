@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import List
 import networkx as nx
 
 from project.automaton_matrix import AutomatonSetOfMatrix
@@ -161,7 +162,10 @@ def _create_masks(
     r_size = len(r.states)
     g_size = len(g.nodes)
 
-    id = sparse.identity(r_size, dtype=bool, format="csr")
+    id = sparse.csr_matrix((r_size, r_size), dtype=bool)
+    for i, state in enumerate(r.states):
+        if state in r.start_states:
+            id[i, i] = 1
     front = sparse.csr_matrix(
         (r_size, g_size),
         dtype=bool,
@@ -233,8 +237,7 @@ def _extract_left_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     """
 
     extr_size = m.shape[0]
-    extr_columns = np.arange(extr_size)
-    return m[:, extr_columns]
+    return m[:, :extr_size]
 
 
 def _extract_right_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
@@ -253,11 +256,10 @@ def _extract_right_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     """
 
     extr_size = m.shape[0]
-    extr_columns = np.arange(extr_size, m.shape[1])
-    return m[:, extr_columns]
+    return m[:, extr_size:]
 
 
-def _transform_front_part(front_part: sparse.csr_array) -> sparse.csr_matrix:
+def _transform_front_part(front_part: sparse.csr_matrix) -> sparse.csr_matrix:
     """
     Transform another front to right form of M matrix. Left submatrix is identity matrix
 
@@ -310,8 +312,9 @@ def _reduce_to_vector(m: sparse.csr_matrix) -> sparse.csr_matrix:
 
 
 def _bfs_based_rpq(
-    r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph, v_src: set
-) -> sparse.csr_matrix:
+    r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph, v_src: set, separated=False
+) -> List[sparse.csr_matrix]:
+
     """
 
     Parameters
@@ -323,42 +326,64 @@ def _bfs_based_rpq(
     v_src: set
         Start vertices set
 
+    separated: bool
+        Process for each start vertex or for set of start vertices
+
     Returns
     -------
-    p: sparse.csr_matrix
-        Adjacency matrix where (i, j) = True if `i` in v_src and `j` is reachable from v_src
+    visited: List[sparse.csr_matrix]
+        List of matrices in two parts. In the first part of the square matrix with the state of the automata,
+        in the second part of the matrix with ones in the columns,
+        the vertices of which can be found from the state of the automaton of this row
     """
-
-    p = _build_adj_empty_matrix(g)
     d = _build_direct_sum(r, g)
-    init_m = _create_masks(r, g)
-    init_m = _set_start_verts(init_m, v_src)
+    if separated:
+        init_m = [
+            _set_start_verts(_create_masks(r, g), {start_vertex})
+            for start_vertex in v_src
+        ]
+    else:
+        init_m = _create_masks(r, g)
+        init_m = [_set_start_verts(init_m, v_src)]
 
     labels = r.symbols.intersection(_get_graph_labels(g))
 
-    old_nnz = 0
-    new_nnz = init_m.nnz
-    first_iteration = True
-    m_new = sparse.csr_matrix(
-        init_m.shape,
-        dtype=bool,
-    )
+    old_nnz = []
+    for front_matrix in init_m:
+        old_nnz.append(0)
+    is_continue = True
+    visited = []
+    for front_matrix in init_m:
+        visited.append(front_matrix.copy())
+    not_updated_matrix = set()  # matrix numbers in which nnz counts do not change
 
-    while old_nnz != new_nnz:
-        old_nnz = new_nnz
-        for label in labels:
-            m_temp = init_m.dot(d[label]) if first_iteration else m_new.dot(d[label])
-            m_new = m_new + _transform_front_part(m_temp)
+    while is_continue:
+        is_continue = False
+        for num_front_matrix in range(len(init_m)):
+            # not processing unchanged matrix
+            if num_front_matrix in not_updated_matrix:
+                continue
+            new_front = sparse.csr_matrix(
+                init_m[num_front_matrix].shape,
+                dtype=bool,
+            )
+            for label in labels:
+                # multiply D matrix and current front
+                temp = init_m[num_front_matrix].dot(d[label])
+                # transform to right form
+                new_front += _transform_front_part(temp)
+                visited[num_front_matrix] += new_front  # update visited vertices
 
-        reachable = _extract_right_submatrix(m_new)
-        v = _reduce_to_vector(reachable)
-        for k in v_src:
-            w = p.getrow(k)
-            p[k, :] = v + w
+            # change front to new
+            init_m[num_front_matrix] = new_front
 
-        first_iteration = False
-        new_nnz = m_new.nnz
-    return p
+            # count nonzero values
+            if old_nnz[num_front_matrix] == visited[num_front_matrix].nnz:
+                not_updated_matrix.add(num_front_matrix)
+            else:
+                old_nnz[num_front_matrix] = visited[num_front_matrix].nnz
+                is_continue = True
+    return visited
 
 
 def bfs_rpq(
@@ -389,27 +414,43 @@ def bfs_rpq(
     set
         Set of reachable pairs of graph vertices
     """
-    regex_automaton = regex_to_dfa(regex)
-    rpq_result = _bfs_based_rpq(regex_automaton, graph, start_vertices)
+
+    if start_vertices is None:
+        start_vertices = set()
+        for node in graph.nodes:
+            start_vertices.add(node)
 
     if final_vertices is None:
         final_vertices = set()
         for node in graph.nodes:
             final_vertices.add(node)
 
+    regex_automaton = regex_to_dfa(regex)
+    rpq_result = _bfs_based_rpq(
+        regex_automaton, graph, v_src=start_vertices, separated=separated
+    )
+
     res = set()
     if separated:
         for s_v in start_vertices:
+            visited_per_start = _extract_right_submatrix(rpq_result[s_v])
             temp = list()
-            row = rpq_result.getrow(s_v)
-            for vertex in row.indices:
-                if vertex in final_vertices:
-                    temp.append(vertex)
+            for i, automaton_state in enumerate(regex_automaton.states):
+                if not (automaton_state in regex_automaton.final_states):
+                    continue
+                row = visited_per_start.getrow(i)
+                for vertex in row.indices:
+                    if vertex in final_vertices:
+                        temp.append(vertex)
             res.add((s_v, frozenset(temp)))
     else:
         reachable_vertices = list()
-        for s_v in start_vertices:
-            row = rpq_result.getrow(s_v)
+        visited_per_start = _extract_right_submatrix(rpq_result[0])
+        for i, automaton_state in enumerate(regex_automaton.states):
+            if not (automaton_state in regex_automaton.final_states):
+                continue
+            row = visited_per_start.getrow(i)
+
             for vertex in row.indices:
                 if vertex in final_vertices:
                     reachable_vertices.append(vertex)

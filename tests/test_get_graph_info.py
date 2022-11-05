@@ -1,6 +1,7 @@
 import cfpq_data
 import pytest
 from project import graph_utils
+from project.manager import get_graph
 
 _test_graph = cfpq_data.labeled_two_cycles_graph(10, 5, labels=("a", "b"))
 
