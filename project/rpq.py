@@ -240,7 +240,6 @@ def _extract_left_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     return m[:, :extr_size]
 
 
-
 def _extract_right_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     """
     Extract right part of M matrix --- front
@@ -385,7 +384,6 @@ def _bfs_based_rpq(
                 old_nnz[num_front_matrix] = visited[num_front_matrix].nnz
                 is_continue = True
     return visited
-
 
 
 def bfs_rpq(
