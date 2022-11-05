@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import List
-
 import networkx as nx
 
 from project.automaton_matrix import AutomatonSetOfMatrix
@@ -241,6 +240,7 @@ def _extract_left_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     return m[:, :extr_size]
 
 
+
 def _extract_right_submatrix(m: sparse.csr_matrix) -> sparse.csr_matrix:
     """
     Extract right part of M matrix --- front
@@ -315,6 +315,7 @@ def _reduce_to_vector(m: sparse.csr_matrix) -> sparse.csr_matrix:
 def _bfs_based_rpq(
     r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph, v_src: set, separated=False
 ) -> List[sparse.csr_matrix]:
+
     """
 
     Parameters
@@ -325,6 +326,7 @@ def _bfs_based_rpq(
         Input graph
     v_src: set
         Start vertices set
+
     separated: bool
         Process for each start vertex or for set of start vertices
 
@@ -385,6 +387,7 @@ def _bfs_based_rpq(
     return visited
 
 
+
 def bfs_rpq(
     graph: nx.MultiDiGraph,
     regex: str,
@@ -413,10 +416,12 @@ def bfs_rpq(
     set
         Set of reachable pairs of graph vertices
     """
+
     if start_vertices is None:
         start_vertices = set()
         for node in graph.nodes:
             start_vertices.add(node)
+
     if final_vertices is None:
         final_vertices = set()
         for node in graph.nodes:
@@ -447,8 +452,10 @@ def bfs_rpq(
             if not (automaton_state in regex_automaton.final_states):
                 continue
             row = visited_per_start.getrow(i)
+
             for vertex in row.indices:
                 if vertex in final_vertices:
                     reachable_vertices.append(vertex)
         res.add(frozenset(reachable_vertices))
+
     return res
