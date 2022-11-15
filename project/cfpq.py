@@ -2,25 +2,47 @@ import networkx as nx
 from networkx import MultiDiGraph
 from pyformlang.cfg import CFG, Variable, Terminal
 
-from project.cfg_utils import cfg_to_wcnf
+from project.cfg_utils import cfg_to_wcnf, read_grammar_to_str, read_cfg
+from project.manager import get_graph
 
 __all__ = ["cfpq"]
 
 
-def hellings(graph: MultiDiGraph, cfg: CFG) -> set[tuple]:
+def hellings(
+    graph: MultiDiGraph | str,
+    cfg: CFG | str,
+    start_symbol: str = "S",
+    grammar_in_file: bool = False,
+) -> set[tuple]:
     """
-    Constrained transitive closure by hellings algorithm
+    Constrained transitive closure by Hellings algorithm
 
     Parameters
     ----------
-    graph: MultiDiGraph
-    cfg: CFG
+    graph: MultiDiGraph | str
+        Graph passed as MultiDiGraph object or graph name from cfpq_data dataset
+    cfg: CFG | str
+        Grammar passed as CFG object, string representation or path to file with grammar
+    start_symbol: str
+        Start non-terminal for context-free grammar in case grammar is not CFG object
+    grammar_in_file: bool
+        Is grammar passed as path to file with grammar
 
     Returns
     -------
     result: set[tuple]
-        Set of triple of start vertex, symbols and final vertex
+        Set of triples (start vertex, non-terminal symbol, final vertex)
     """
+
+    # transform graph and grammar
+    if grammar_in_file:
+        cfg = read_grammar_to_str(cfg)
+
+    if isinstance(cfg, str):
+        cfg = read_cfg(cfg, start_symbol)
+
+    if isinstance(graph, str):
+        graph = get_graph(graph)
 
     cfg = cfg_to_wcnf(cfg)
 
@@ -82,15 +104,15 @@ def hellings(graph: MultiDiGraph, cfg: CFG) -> set[tuple]:
     return result
 
 
-def cfpq(
+def _cfpq(
     cfg: CFG,
     graph: MultiDiGraph,
-    start_variable: Variable = Variable("S"),
-    start_nodes: list[any] = None,
-    final_nodes: list[any] = None,
+    start_symbol: Variable = Variable("S"),
+    start_nodes: set[any] = None,
+    final_nodes: set[any] = None,
 ) -> set[tuple[any, any]]:
     """
-    Performs context-free path querying in graph with given context free grammar
+    Performs context-free path querying in graph with given context-free grammar
 
     Parameters
     ----------
@@ -98,7 +120,7 @@ def cfpq(
         Input grammar
     graph: MultiDiGraph
         Graph
-    start_variable:
+    start_symbol:
         Start non-terminal to make query
     start_nodes:
         Start nodes in graph
@@ -110,16 +132,16 @@ def cfpq(
         Tuple with nodes satisfying cfpq
     """
     if start_nodes is None:
-        start_nodes = list(graph.nodes)
+        start_nodes = set(graph.nodes)
 
     if final_nodes is None:
-        final_nodes = list(graph.nodes)
+        final_nodes = set(graph.nodes)
 
     hellings_result = hellings(graph, cfg)
     return set(
         [
             (u, v)
             for u, var, v in hellings_result
-            if var == start_variable and u in start_nodes and v in final_nodes
+            if var == start_symbol and u in start_nodes and v in final_nodes
         ]
     )
