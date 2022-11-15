@@ -104,7 +104,7 @@ def hellings(
     return result
 
 
-def _cfpq(
+def cfpq(
     cfg: CFG,
     graph: MultiDiGraph,
     start_symbol: Variable = Variable("S"),
