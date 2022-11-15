@@ -76,5 +76,5 @@ from project.cyk import cyk
         ),
     ],
 )
-def test_check_word_in_cfg_language(cfg: CFG, word: str, result: bool):
+def test_cyk(cfg: CFG, word: str, result: bool):
     assert result == cyk(word, cfg)
