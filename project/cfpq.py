@@ -1,3 +1,4 @@
+
 from scipy.sparse import csr_matrix
 from networkx import MultiDiGraph
 from pyformlang.cfg import CFG, Variable, Terminal
@@ -33,9 +34,10 @@ def hellings(
         Set of triples (start vertex, non-terminal symbol, final vertex)
     """
 
+
     grammar_in_file = kwargs.get("grammar_in_file", False)
     start_symbol = kwargs.get("start_symbol", "S")
-
+    
     # transform graph and grammar
     if grammar_in_file:
         cfg = read_grammar_to_str(cfg)
@@ -232,6 +234,7 @@ def cfpq_by_hellings(
 
     if final_nodes is None:
         final_nodes = set(graph.nodes)
+
 
     hellings_result = hellings(graph, cfg, **kwargs)
     return set(
