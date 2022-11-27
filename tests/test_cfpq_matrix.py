@@ -2,7 +2,7 @@ import networkx as nx
 import pytest
 from pyformlang.cfg import CFG
 
-from project.cfpq import cfpq_by_hellings
+from project.cfpq import cfpq_by_matrix
 
 
 def _create_graph(nodes, edges) -> nx.MultiDiGraph:
@@ -18,7 +18,7 @@ def _create_graph(nodes, edges) -> nx.MultiDiGraph:
     "actual,expected",
     [
         (
-            cfpq_by_hellings(
+            cfpq_by_matrix(
                 cfg=CFG.from_text(
                     """
                         S -> A B
@@ -31,7 +31,7 @@ def _create_graph(nodes, edges) -> nx.MultiDiGraph:
             {(0, 2)},
         ),
         (
-            cfpq_by_hellings(
+            cfpq_by_matrix(
                 cfg=CFG.from_text(
                     """
                         S -> $
@@ -42,7 +42,7 @@ def _create_graph(nodes, edges) -> nx.MultiDiGraph:
             {(0, 0), (1, 1)},
         ),
         (
-            cfpq_by_hellings(
+            cfpq_by_matrix(
                 cfg=CFG.from_text(
                     """
                         S -> A B C
@@ -58,7 +58,7 @@ def _create_graph(nodes, edges) -> nx.MultiDiGraph:
             {(0, 3)},
         ),
         (
-            cfpq_by_hellings(
+            cfpq_by_matrix(
                 cfg=CFG.from_text(
                     """
                         S -> A B C | S S | s
@@ -75,7 +75,7 @@ def _create_graph(nodes, edges) -> nx.MultiDiGraph:
             {(0, 3), (0, 0)},
         ),
         (
-            cfpq_by_hellings(
+            cfpq_by_matrix(
                 cfg=CFG.from_text(
                     """
                         S -> A B S S C
