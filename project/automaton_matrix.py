@@ -3,9 +3,12 @@ from pyformlang.finite_automaton import (
     State,
     NondeterministicFiniteAutomaton,
     FiniteAutomaton,
+    Symbol,
 )
 
 __all__ = ["AutomatonSetOfMatrix"]
+
+from project.rsm import RSM
 
 
 class AutomatonSetOfMatrix:
@@ -56,6 +59,58 @@ class AutomatonSetOfMatrix:
                             dtype=bool,
                         )
                     automaton_matrix.bool_matrices[label][idx_from, idx_to] = True
+
+        return automaton_matrix
+
+    @classmethod
+    def from_rsm(cls, rsm: RSM):
+        """
+        Transform automaton to set of labeled boolean matrix
+
+        Parameters
+        ----------
+        rsm
+            Automaton for transforming
+
+        Returns
+        -------
+        AutomatonSetOfMatrix
+            Result of transforming
+        """
+
+        states, start_states, final_states = set(), set(), set()
+        for var, nfa in rsm.boxes.items():
+            for s in nfa.states:
+                state = State((var, s.value))
+                states.add(state)
+                if s in nfa.start_states:
+                    start_states.add(state)
+                if s in nfa.final_states:
+                    final_states.add(state)
+
+        states = sorted(states, key=lambda v: (v.value[0].value, v.value[1]))
+        state_to_idx = {s: i for i, s in enumerate(states)}
+
+        automaton_matrix = cls()
+        automaton_matrix.num_states = len(states)
+        automaton_matrix.start_states = start_states
+        automaton_matrix.final_states = final_states
+        automaton_matrix.state_indices = state_to_idx
+
+        for var, nfa in rsm.boxes.items():
+            for state_from, transitions in nfa.to_dict().items():
+                for label, states_to in transitions.items():
+                    if label not in automaton_matrix.bool_matrices.keys():
+                        automaton_matrix.bool_matrices[label] = sparse.csr_matrix(
+                            (automaton_matrix.num_states, automaton_matrix.num_states),
+                            dtype=bool,
+                        )
+                    states_to = states_to if isinstance(states_to, set) else {states_to}
+                    for state_to in states_to:
+                        automaton_matrix.bool_matrices[label][
+                            state_to_idx[State((var, state_from.value))],
+                            state_to_idx[State((var, state_to.value))],
+                        ] = True
 
         return automaton_matrix
 

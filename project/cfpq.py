@@ -1,11 +1,17 @@
+from pyformlang.finite_automaton import State, Symbol
 from scipy.sparse import csr_matrix
 from networkx import MultiDiGraph
 from pyformlang.cfg import CFG, Variable, Terminal
 
+from project.automaton_matrix import AutomatonSetOfMatrix
 from project.cfg_utils import cfg_to_wcnf, read_grammar_to_str, read_cfg
+from project.ecfg import ECFG
+from project.graph_utils import graph_to_nfa
 from project.manager import get_graph
 
-__all__ = ["cfpq_by_hellings", "cfpq_by_matrix", "cfpq"]
+__all__ = ["cfpq_by_hellings", "cfpq_by_matrix", "cfpq_by_tensor", "cfpq"]
+
+from project.rsm import RSM
 
 
 def hellings(
@@ -199,6 +205,92 @@ def matrix_based(
     }
 
 
+def tensor_based(
+    graph: MultiDiGraph | str,
+    cfg: CFG | str,
+    **kwargs,
+) -> set[tuple]:
+    """
+    Transitive closure based on Tensor algorithm
+
+     Parameters
+    ----------
+    graph: MultiDiGraph | str
+        Graph passed as MultiDiGraph object or graph name from cfpq_data dataset
+    cfg: CFG | str
+        Grammar passed as CFG object, string representation or path to file with grammar
+    start_symbol: str
+        Start non-terminal for context-free grammar in case grammar is not CFG object
+    grammar_in_file: bool
+        Is grammar passed as path to file with grammar
+
+    Returns
+    -------
+    result: set[tuple]
+        Set of triples (start vertex, non-terminal symbol, final vertex)
+    """
+
+    grammar_in_file = kwargs.get("grammar_in_file", False)
+    start_symbol = kwargs.get("start_symbol", "S")
+
+    # transform graph and grammar
+    if grammar_in_file:
+        cfg = read_grammar_to_str(cfg)
+
+    if isinstance(cfg, str):
+        cfg = read_cfg(cfg, start_symbol)
+
+    if isinstance(graph, str):
+        graph = get_graph(graph)
+
+    g_matrix = AutomatonSetOfMatrix.from_automaton(graph_to_nfa(graph))
+    rsm = RSM.from_ecfg((ECFG.from_cfg(cfg)))
+    rsm_matrix = AutomatonSetOfMatrix.from_rsm(rsm)
+    rsm_idx_to_state = {i: s for s, i in rsm_matrix.state_indices.items()}
+
+    for var in cfg.get_nullable_symbols():
+        if var not in g_matrix.bool_matrices.keys():
+            g_matrix.bool_matrices[var] = csr_matrix(
+                (g_matrix.num_states, g_matrix.num_states), dtype=bool
+            )
+        for i in range(g_matrix.num_states):
+            g_matrix.bool_matrices[var][i, i] = True
+
+    intersection = rsm_matrix.intersect(g_matrix)
+    tc = intersection.get_transitive_closure()
+
+    prev_nnz = tc.nnz
+    new_nnz = 0
+
+    while prev_nnz != new_nnz:
+        for i, j in zip(*tc.nonzero()):
+            rsm_i = i // g_matrix.num_states
+            rsm_j = j // g_matrix.num_states
+
+            graph_i = i % g_matrix.num_states
+            graph_j = j % g_matrix.num_states
+
+            s, f = rsm_idx_to_state[rsm_i], rsm_idx_to_state[rsm_j]
+            var, _ = s.value
+
+            if s in rsm_matrix.start_states and f in rsm_matrix.final_states:
+                if var not in g_matrix.bool_matrices.keys():
+                    g_matrix.bool_matrices[var] = csr_matrix(
+                        (g_matrix.num_states, g_matrix.num_states), dtype=bool
+                    )
+                g_matrix.bool_matrices[var][graph_i, graph_j] = True
+
+        tc = rsm_matrix.intersect(g_matrix).get_transitive_closure()
+
+        prev_nnz, new_nnz = new_nnz, tc.nnz
+
+    return {
+        (u, label, v)
+        for label, bm in g_matrix.bool_matrices.items()
+        for u, v in zip(*bm.nonzero())
+    }
+
+
 def cfpq_by_hellings(
     cfg: CFG,
     graph: MultiDiGraph,
@@ -227,20 +319,7 @@ def cfpq_by_hellings(
     -------
         Tuple with nodes satisfying cfpq
     """
-    if start_nodes is None:
-        start_nodes = set(graph.nodes)
-
-    if final_nodes is None:
-        final_nodes = set(graph.nodes)
-
-    hellings_result = hellings(graph, cfg, **kwargs)
-    return set(
-        [
-            (u, v)
-            for u, var, v in hellings_result
-            if var == start_symbol and u in start_nodes and v in final_nodes
-        ]
-    )
+    return cfpq(cfg, graph, start_symbol, start_nodes, final_nodes, hellings, **kwargs)
 
 
 def cfpq_by_matrix(
@@ -271,19 +350,41 @@ def cfpq_by_matrix(
     -------
         Tuple with nodes satisfying cfpq
     """
-    if start_nodes is None:
-        start_nodes = set(graph.nodes)
+    return cfpq(
+        cfg, graph, start_symbol, start_nodes, final_nodes, matrix_based, **kwargs
+    )
 
-    if final_nodes is None:
-        final_nodes = set(graph.nodes)
 
-    matrix_result = matrix_based(graph, cfg, **kwargs)
-    return set(
-        [
-            (u, v)
-            for u, var, v in matrix_result
-            if var == start_symbol and u in start_nodes and v in final_nodes
-        ]
+def cfpq_by_tensor(
+    cfg: CFG,
+    graph: MultiDiGraph,
+    start_symbol: Variable = Variable("S"),
+    start_nodes: set[any] = None,
+    final_nodes: set[any] = None,
+    **kwargs,
+) -> set[tuple[any, any]]:
+    """
+    Performs context-free path querying in graph with given context-free grammar via Tensor based algorithm
+
+    Parameters
+    ----------
+    cfg: CFG
+        Input grammar
+    graph: MultiDiGraph
+        Graph
+    start_symbol: Varibale
+        Start non-terminal to make query
+    start_nodes: set
+        Start nodes in graph
+    final_nodes: set
+        Final nodes in graph
+
+    Returns
+    -------
+        Tuple with nodes satisfying cfpq
+    """
+    return cfpq(
+        cfg, graph, start_symbol, start_nodes, final_nodes, tensor_based, **kwargs
     )
 
 
@@ -322,7 +423,7 @@ def cfpq(
     # default config
     args = {
         "grammar_in_file": False,
-        "start_symbol": "S",
+        "start_symbol": start_symbol.value,
     }
 
     for kw in kwargs:
@@ -334,4 +435,12 @@ def cfpq(
     if final_nodes is None:
         final_nodes = set(graph.nodes)
 
-    return algorithm(cfg, graph, start_symbol, start_nodes, final_nodes, args)
+    result = algorithm(graph, cfg, **args)
+    ans = set(
+        [
+            (u, v)
+            for u, var, v in result
+            if var == start_symbol and u in start_nodes and v in final_nodes
+        ]
+    )
+    return ans

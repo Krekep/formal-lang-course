@@ -1,6 +1,7 @@
 antlr4-python3-runtime==4.11.1
 black==22.8.0
 cfpq-data==4.0.0
+networkx
 pre-commit==2.20.0
 pydot==1.4.2
 pyformlang==0.1.26
