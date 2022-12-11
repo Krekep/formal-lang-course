@@ -4,7 +4,6 @@ from argparse import Namespace
 import cfpq_data
 import networkx as nx
 
-import project.graph_utils
 from project import graph_utils
 
 __all__ = [

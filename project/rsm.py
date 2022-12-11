@@ -1,3 +1,5 @@
+from typing import Dict
+
 from pyformlang.cfg import Variable
 from pyformlang.finite_automaton import EpsilonNFA
 
@@ -16,7 +18,7 @@ class RSM:
         RSM boxes
     """
 
-    def __init__(self, start: Variable, boxes: dict[Variable, EpsilonNFA]):
+    def __init__(self, start: Variable, boxes: Dict[Variable, EpsilonNFA]):
         self.start = start
         self.boxes = boxes
 

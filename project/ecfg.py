@@ -1,3 +1,5 @@
+from typing import Set, Dict
+
 from pyformlang.cfg import Variable, Terminal, CFG
 from pyformlang.regular_expression import Regex
 
@@ -18,9 +20,9 @@ class ECFG:
 
     def __init__(
         self,
-        variables: set[Variable],
+        variables: Set[Variable],
         start: Variable,
-        productions: dict[Variable, Regex],
+        productions: Dict[Variable, Regex],
     ):
         self.variables = variables
         self.start = start
