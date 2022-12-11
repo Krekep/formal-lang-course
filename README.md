@@ -90,6 +90,7 @@
 
 Эксперименты:
 - [Задача 5](https://colab.research.google.com/drive/1Gau-VhZ0J6JO7-60HCzNHnrSo1N51MS_?usp=sharing)
+- [Задача 12](https://colab.research.google.com/drive/149VplWpqtjG7u-M-sNCUq5gGgvws7CJW?usp=sharing)
 
 ## Структура репозитория
 
