@@ -158,13 +158,14 @@ def matrix_based(
     term_prods = {}  # A -> a
     var_prods = {}  # A -> B C
     for p in cfg.productions:
-        match p.body:
-            case []:
-                eps_prods.add(p.head)
-            case [Terminal() as t]:
-                term_prods.setdefault(p.head, set()).add(t)
-            case [Variable() as v1, Variable() as v2]:
-                var_prods.setdefault(p.head, set()).add((v1, v2))
+        if not p.body:
+            eps_prods.add(p.head)
+        elif len(p.body) == 1:
+            t = p.body[0]
+            term_prods.setdefault(p.head, set()).add(t)
+        elif len(p.body) == 2:
+            v1, v2 = p.body
+            var_prods.setdefault(p.head, set()).add((v1, v2))
 
     # prepare adjacency matrix
     nodes_num = graph.number_of_nodes()
