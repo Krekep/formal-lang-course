@@ -1,5 +1,4 @@
 import argparse
-import project
 from project import manager
 
 __all__ = ["parser_initialize"]

@@ -1,4 +1,6 @@
-from pyformlang.finite_automaton import State, Symbol
+from __future__ import annotations
+
+from typing import Set, Tuple
 from scipy.sparse import csr_matrix
 from networkx import MultiDiGraph
 from pyformlang.cfg import CFG, Variable, Terminal
@@ -18,7 +20,7 @@ def hellings(
     graph: MultiDiGraph | str,
     cfg: CFG | str,
     **kwargs,
-) -> set[tuple]:
+) -> Set[Tuple]:
     """
     Constrained transitive closure by Hellings algorithm
 
@@ -59,13 +61,14 @@ def hellings(
     term_prods = {}  # A -> a
     var_prods = {}  # A -> B C
     for p in cfg.productions:
-        match p.body:
-            case []:
-                eps_prods.add(p.head)
-            case [Terminal() as t]:
-                term_prods.setdefault(p.head, set()).add(t)
-            case [Variable() as v1, Variable() as v2]:
-                var_prods.setdefault(p.head, set()).add((v1, v2))
+        if not p.body:
+            eps_prods.add(p.head)
+        elif len(p.body) == 1:
+            t = p.body[0]
+            term_prods.setdefault(p.head, set()).add(t)
+        elif len(p.body) == 2:
+            v1, v2 = p.body
+            var_prods.setdefault(p.head, set()).add((v1, v2))
 
     # prepare result
     result = set()
@@ -116,7 +119,7 @@ def matrix_based(
     graph: MultiDiGraph | str,
     cfg: CFG | str,
     **kwargs,
-) -> set[tuple]:
+) -> Set[Tuple]:
     """
     Transitive closure based on Matrix Multiplication algorithm
 
@@ -157,13 +160,14 @@ def matrix_based(
     term_prods = {}  # A -> a
     var_prods = {}  # A -> B C
     for p in cfg.productions:
-        match p.body:
-            case []:
-                eps_prods.add(p.head)
-            case [Terminal() as t]:
-                term_prods.setdefault(p.head, set()).add(t)
-            case [Variable() as v1, Variable() as v2]:
-                var_prods.setdefault(p.head, set()).add((v1, v2))
+        if not p.body:
+            eps_prods.add(p.head)
+        elif len(p.body) == 1:
+            t = p.body[0]
+            term_prods.setdefault(p.head, set()).add(t)
+        elif len(p.body) == 2:
+            v1, v2 = p.body
+            var_prods.setdefault(p.head, set()).add((v1, v2))
 
     # prepare adjacency matrix
     nodes_num = graph.number_of_nodes()
@@ -209,7 +213,7 @@ def tensor_based(
     graph: MultiDiGraph | str,
     cfg: CFG | str,
     **kwargs,
-) -> set[tuple]:
+) -> Set[Tuple]:
     """
     Transitive closure based on Tensor algorithm
 
@@ -295,10 +299,10 @@ def cfpq_by_hellings(
     cfg: CFG,
     graph: MultiDiGraph,
     start_symbol: Variable = Variable("S"),
-    start_nodes: set[any] = None,
-    final_nodes: set[any] = None,
+    start_nodes: Set[any] = None,
+    final_nodes: Set[any] = None,
     **kwargs,
-) -> set[tuple[any, any]]:
+) -> Set[Tuple]:
     """
     Performs context-free path querying in graph with given context-free grammar via Hellings algorithm
 
@@ -326,10 +330,10 @@ def cfpq_by_matrix(
     cfg: CFG,
     graph: MultiDiGraph,
     start_symbol: Variable = Variable("S"),
-    start_nodes: set[any] = None,
-    final_nodes: set[any] = None,
+    start_nodes: Set[any] = None,
+    final_nodes: Set[any] = None,
     **kwargs,
-) -> set[tuple[any, any]]:
+) -> Set[Tuple]:
     """
     Performs context-free path querying in graph with given context-free grammar via Matrix Multiplication
 
@@ -359,10 +363,10 @@ def cfpq_by_tensor(
     cfg: CFG,
     graph: MultiDiGraph,
     start_symbol: Variable = Variable("S"),
-    start_nodes: set[any] = None,
-    final_nodes: set[any] = None,
+    start_nodes: Set[any] = None,
+    final_nodes: Set[any] = None,
     **kwargs,
-) -> set[tuple[any, any]]:
+) -> Set[Tuple]:
     """
     Performs context-free path querying in graph with given context-free grammar via Tensor based algorithm
 
@@ -392,11 +396,11 @@ def cfpq(
     cfg: CFG,
     graph: MultiDiGraph,
     start_symbol: Variable = Variable("S"),
-    start_nodes: set[any] = None,
-    final_nodes: set[any] = None,
+    start_nodes: Set[any] = None,
+    final_nodes: Set[any] = None,
     algorithm: callable = hellings,
     **kwargs,
-) -> set[tuple[any, any]]:
+) -> Set[Tuple]:
     """
     Performs context-free path querying in graph with given context-free grammar and algorithm
 

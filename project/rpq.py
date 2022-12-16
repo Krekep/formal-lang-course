@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Set, Tuple, Dict
 import networkx as nx
 
 from project.automaton_matrix import AutomatonSetOfMatrix
@@ -85,7 +85,7 @@ def _build_adj_empty_matrix(g: nx.MultiDiGraph) -> sparse.csr_matrix:
 
 def _build_direct_sum(
     r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph
-) -> dict[sparse.csr_matrix]:
+) -> Dict[sparse.csr_matrix]:
     """
     Build direct sum of boolean matrix decomposition dfa and graph
 
@@ -392,7 +392,7 @@ def bfs_rpq(
     start_vertices: set = None,
     final_vertices: set = None,
     separated: bool = False,
-) -> set[tuple[int, frozenset] | frozenset]:
+) -> Set[Tuple[int, frozenset] | frozenset]:
     """
     Get set of reachable pairs of graph vertices
 
