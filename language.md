@@ -46,7 +46,7 @@ lambda = Lambda of List<var> * expr
 prog -> stmt ; prog
       | eps
 
-stmt -> 'print' '(' expr ')' 
+stmt -> 'print' '(' expr ')'
       | var '=' expr
 
 expr -> graph
@@ -60,7 +60,7 @@ expr -> graph
       | expr '.' expr
       | expr '|' expr
       | expr '*'
-      
+
 graph ->
     var
     | 'load' '(' PATH ')'
