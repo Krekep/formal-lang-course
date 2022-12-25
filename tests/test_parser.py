@@ -1,5 +1,4 @@
 import pytest
-import platform
 from project.grammar.parser import parse
 
 

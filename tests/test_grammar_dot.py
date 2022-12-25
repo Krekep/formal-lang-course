@@ -1,14 +1,4 @@
-import sys
-
 import pytest
-
-from pathlib import Path
-
-
-# if sys.platform.startswith("win"):
-#     pytest.skip("skipping", allow_module_level=True)
-# else:
-#     from project.grammar.parser import generate_dot
 from project.grammar.parser import generate_dot
 from antlr4.error.Errors import ParseCancellationException
 
