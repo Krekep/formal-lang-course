@@ -54,6 +54,17 @@ jobs:
               brew install antlr
           fi
 
+      - name: Build grammar
+          shell: bash
+          run: |
+            if [ "$RUNNER_OS" == "Linux" ]; then
+                antlr4 -Dlanguage=Python3 ./project/grammar/antlr_grammar.g4
+            elif [ "$RUNNER_OS" == "Windows" ]; then
+                antlr4 -Dlanguage=Python3 ./project/grammar/antlr_grammar.g4
+            else
+                antlr -Dlanguage=Python3 ./project/grammar/antlr_grammar.g4
+            fi
+
       # Run pytest on all the test in the /tests directory
       - name: Run pytest
         run: |
