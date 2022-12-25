@@ -12,8 +12,8 @@ def test_write_dot():
     res = g1 & qq;
     print(res);
     """
-    path = generate_dot(text, "data/test_grammar.dot")
-    assert path == "data/test_grammar.dot"
+    path = generate_dot(text, "tests/data/test_grammar.dot")
+    assert path == "tests/data/test_grammar.dot"
 
 
 def test_incorrect_text():
