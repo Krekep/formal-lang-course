@@ -46,13 +46,8 @@ jobs:
           python -m pip install --upgrade pip wheel setuptools
           python -m pip install -r requirements.txt
           python -m pip list
-          if [ "$RUNNER_OS" == "Linux" ]; then
-              sudo apt-get install antlr4
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-              choco install antlr4
-          else
-              brew install antlr
-          fi
+          pip install antlr4-tools
+
       - name: Build grammar
         shell: bash
         run: |
