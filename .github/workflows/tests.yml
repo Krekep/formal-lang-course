@@ -56,7 +56,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
               antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
           else
-              antlr ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+              antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
           fi
       # Run tests from /tests directory
       - name: Run tests
