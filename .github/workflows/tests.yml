@@ -55,7 +55,6 @@ jobs:
           fi
 
       - name: Build grammar
-          shell: bash
           run: |
             if [ "$RUNNER_OS" == "Linux" ]; then
                 antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
