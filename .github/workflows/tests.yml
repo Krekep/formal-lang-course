@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Run tests
+name: Check tests
 
 # Controls when the workflow will run
 on:
@@ -10,8 +10,8 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  # This workflow contains a single job called "tests"
-  tests:
+  # This workflow contains a single job called "style"
+  build-and-test:
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -21,9 +21,10 @@ jobs:
 
       # You can define a matrix of different job configurations
       matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
         # Each option you define in the matrix has a key and value
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        python-version: [ 3.10.6 ]
+        python-version: [ 3.10 ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -39,7 +40,6 @@ jobs:
 
       # Install requirements
       - name: Install requirements
-
         shell: bash
         # Runs command-line programs using the operating system's shell
         run: |
@@ -53,18 +53,17 @@ jobs:
           else
               brew install antlr
           fi
-
       - name: Build grammar
-          run: |
-            if [ "$RUNNER_OS" == "Linux" ]; then
-                antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
-            elif [ "$RUNNER_OS" == "Windows" ]; then
-                antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
-            else
-                antlr ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
-            fi
-
-      # Run pytest on all the test in the /tests directory
-      - name: Run pytest
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+              antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+          else
+              antlr ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+          fi
+      # Run tests from /tests directory
+      - name: Run tests
         run: |
           python ./scripts/run_tests.py
