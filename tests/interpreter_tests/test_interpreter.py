@@ -17,9 +17,7 @@ def test_invalid_file_path():
 def test_invalid_extension():
     with pytest.raises(ScriptExtensionException):
         read_script(
-            filename=Path(
-                "tests/interpreter_tests/data/invalid_extension.mgql"
-            )
+            filename=Path("tests/interpreter_tests/data/invalid_extension.mgql")
         )
 
 

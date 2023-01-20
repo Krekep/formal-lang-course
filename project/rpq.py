@@ -15,7 +15,7 @@ __all__ = ["get_reachable", "rpq", "bfs_rpq"]
 
 
 def get_reachable(
-        graph_bm: AutomatonSetOfMatrix, query_bm: AutomatonSetOfMatrix
+    graph_bm: AutomatonSetOfMatrix, query_bm: AutomatonSetOfMatrix
 ) -> set:
     """
     Parameters
@@ -46,10 +46,10 @@ def get_reachable(
 
 
 def rpq(
-        graph: nx.MultiDiGraph,
-        regex: str,
-        start_vertices: set = None,
-        final_vertices: set = None,
+    graph: nx.MultiDiGraph,
+    regex: str,
+    start_vertices: set = None,
+    final_vertices: set = None,
 ) -> set:
     """
     Get set of reachable pairs of graph vertices
@@ -76,7 +76,9 @@ def rpq(
     )
     intersected_automaton = graph_automaton_matrix.intersect(regex_automaton_matrix)
 
-    return get_reachable(graph_bm=intersected_automaton, query_bm=regex_automaton_matrix)
+    return get_reachable(
+        graph_bm=intersected_automaton, query_bm=regex_automaton_matrix
+    )
 
 
 def _build_adj_empty_matrix(g: nx.MultiDiGraph) -> sparse.csr_matrix:
@@ -101,7 +103,7 @@ def _build_adj_empty_matrix(g: nx.MultiDiGraph) -> sparse.csr_matrix:
 
 
 def _build_direct_sum(
-        r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph
+    r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph
 ) -> Dict[sparse.csr_matrix]:
     """
     Build direct sum of boolean matrix decomposition dfa and graph
@@ -158,7 +160,7 @@ def _build_direct_sum(
 
 
 def _create_masks(
-        r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph
+    r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph
 ) -> sparse.csr_matrix:
     """
     Create M matrix
@@ -329,7 +331,7 @@ def _reduce_to_vector(m: sparse.csr_matrix) -> sparse.csr_matrix:
 
 
 def _bfs_based_rpq(
-        r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph, v_src: set, separated=False
+    r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph, v_src: set, separated=False
 ) -> List[sparse.csr_matrix]:
     """
 
@@ -403,11 +405,11 @@ def _bfs_based_rpq(
 
 
 def bfs_rpq(
-        graph: nx.MultiDiGraph,
-        regex: str,
-        start_vertices: set = None,
-        final_vertices: set = None,
-        separated: bool = False,
+    graph: nx.MultiDiGraph,
+    regex: str,
+    start_vertices: set = None,
+    final_vertices: set = None,
+    separated: bool = False,
 ) -> Set[Tuple[int, frozenset] | frozenset]:
     """
     Get set of reachable pairs of graph vertices

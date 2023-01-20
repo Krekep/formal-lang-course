@@ -26,7 +26,7 @@ def test_binary(lhs, op, rhs, expected):
     [
         ("{11, 22}", ".", "{11, 22, 33}"),
         ("{11, 22, 33}", "*", ""),
-        ("", "not", "{11, 22, 33}")
+        ("", "not", "{11, 22, 33}"),
     ],
 )
 def test_unsupported_op(lhs, op, rhs):
