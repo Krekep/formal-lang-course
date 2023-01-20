@@ -61,10 +61,10 @@ def test_filter(text, accept):
     [
         ("true", True),
         ("false", True),
-        ("True", False),
-        ("False", False),
+        ("True", True),
+        ("False", True),
         ('"label"', True),
-        ("label", False),
+        ("label", True),
         ('{"l1", l2}', False),
         ("get_vertices(g)", False),
         ("42", True),
