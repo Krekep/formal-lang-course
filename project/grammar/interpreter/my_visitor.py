@@ -4,7 +4,9 @@ from project.grammar.interpreter.my_types.AntlrBool import AntlrBool
 
 from project.grammar.interpreter.my_types.AntlrType import AntlrType
 from project.grammar.interpreter.my_types.AntlrAutomata import AntlrAutomata
-from project.grammar.interpreter.my_types.AntlrFiniteAutomaton import AntlrFiniteAutomaton
+from project.grammar.interpreter.my_types.AntlrFiniteAutomaton import (
+    AntlrFiniteAutomaton,
+)
 from project.grammar.interpreter.my_types.AntlrSet import AntlrSet
 
 from project.grammar.interpreter.memory import Memory
@@ -138,7 +140,9 @@ class MyVisitor(antlr_grammarVisitor):
 
     def _iter_method(
         self,
-        ctx: Union[antlr_grammarParser.My_mapContext, antlr_grammarParser.My_filterContext],
+        ctx: Union[
+            antlr_grammarParser.My_mapContext, antlr_grammarParser.My_filterContext
+        ],
         method="map",
     ):
         fun = self.visit(ctx.my_lambda())

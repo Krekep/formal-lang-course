@@ -163,7 +163,9 @@ class AntlrFiniteAutomaton(AntlrAutomata):
         """
         lhs = self.nfa.to_regex()
         rhs = other.nfa.to_regex()
-        return AntlrFiniteAutomaton(lhs.concatenate(rhs).to_epsilon_nfa().to_deterministic())
+        return AntlrFiniteAutomaton(
+            lhs.concatenate(rhs).to_epsilon_nfa().to_deterministic()
+        )
 
     def inverse(self) -> "AntlrFiniteAutomaton":
         """
