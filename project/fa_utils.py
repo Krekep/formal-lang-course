@@ -65,3 +65,40 @@ def regex_to_dfa(regex: str) -> DeterministicFiniteAutomaton:
     nfa = regex_to_nfa(regex)
     dfa = nfa_to_minimal_dfa(nfa)
     return dfa
+
+
+def replace_nfa_states(
+    nfa: NondeterministicFiniteAutomaton,
+    start_states: set = None,
+    final_states: set = None,
+) -> NondeterministicFiniteAutomaton:
+    new_nfa = nfa.copy()
+
+    if start_states:
+        for state in nfa.start_states:
+            new_nfa.remove_start_state(state)
+        for state in start_states:
+            new_nfa.add_start_state(state)
+
+    if final_states:
+        for state in nfa.final_states:
+            new_nfa.remove_final_state(state)
+        for state in final_states:
+            new_nfa.add_final_state(state)
+
+    return new_nfa
+
+
+def add_nfa_states(
+    nfa: NondeterministicFiniteAutomaton,
+    start_states: set = None,
+    final_states: set = None,
+) -> NondeterministicFiniteAutomaton:
+    new_nfa = nfa.copy()
+
+    for state in start_states:
+        new_nfa.add_start_state(state)
+    for state in final_states:
+        new_nfa.add_final_state(state)
+
+    return new_nfa

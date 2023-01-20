@@ -1,0 +1,6 @@
+gg = load("skos");
+ff = load("wine");
+g_labels = get_labels(gg);
+f_labels = get_labels(ff);
+common_labels = filter(fun [label]: label in f_labels, g_labels);
+print(common_labels);
