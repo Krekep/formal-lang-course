@@ -52,11 +52,11 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-              antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+              antlr4 ./project/grammar/antlr_grammar.g4 -visitor -Dlanguage=Python3
           elif [ "$RUNNER_OS" == "Windows" ]; then
-              antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+              antlr4 ./project/grammar/antlr_grammar.g4 -visitor -Dlanguage=Python3
           else
-              antlr4 ./project/grammar/antlr_grammar.g4 -Dlanguage=Python3
+              antlr4 ./project/grammar/antlr_grammar.g4 -visitor -Dlanguage=Python3
           fi
       # Run tests from /tests directory
       - name: Run tests
