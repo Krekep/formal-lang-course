@@ -43,87 +43,141 @@ lambda = Lambda of List<var> * expr
 ### Описание конкретного синтаксиса языка
 
 ```
-prog -> stmt ; prog
-      | eps
+prog : (EOL? WS? stmt SEMI EOL?)+ EOF;
+WS : [ \t\r]+ -> skip ;
+EOL : [\n]+ ;
+SEMI : ';' WS?;
 
-stmt -> 'print' '(' expr ')'
+stmt : 'print' '(' expr ')'
       | var '=' expr
+      ;
 
-expr -> graph
-      | map
-      | filter
+expr : my_graph
+      | my_map
+      | my_filter
       | var
       | val
-      | 'not' expr
-      | expr 'in' expr
-      | expr '&' expr
-      | expr '.' expr
-      | expr '|' expr
-      | expr '*'
+      | labels
+      | vertices
+      | edges
+      | NOT expr
+      | expr IN expr
+      | expr AND expr
+      | expr DOT expr
+      | expr OR expr
+      | expr KLEENE
+      | LP expr RP
+      ;
 
-graph ->
+AND : '&' ;
+OR : '|' ;
+NOT : 'not' ;
+IN : 'in' ;
+KLEENE : '*' ;
+DOT : '.' ;
+LP : '(' ;
+RP : ')' ;
+
+my_graph :
     var
-    | 'load' '(' PATH ')'
-    | 'set_start' '(' vertices ',' graph ')'
-    | 'set_final' '(' vertices ',' graph ')'
-    | 'add_start' '(' vertices ',' graph ')'
-    | 'add_final' '(' vertices ',' graph ')'
+    | load_graph
+    | set_start
+    | set_final
+    | add_start
+    | add_final
+    ;
 
-NONZERO -> [1-9]
-DIGIT -> [0-9]
-INT -> (NONZERO DIGIT*) | 0
+load_graph : 'load' '(' string ')' ;
+set_start : 'set_start' '(' vertices ',' my_graph ')' ;
+set_final : 'set_final' '(' vertices ',' my_graph ')' ;
+add_start : 'add_start' '(' vertices ',' my_graph ')' ;
+add_final : 'add_final' '(' vertices ',' my_graph ')' ;
 
-BOOL -> 'true'
-      | 'false'
+NONZERO : [1-9] ;
+DIGIT : [0-9] ;
+INT : (NONZERO DIGIT*) | [0] ;
 
-CHAR -> [a-z] | [A-Z]
-STRING -> '"' (CHAR | DIGIT | '_' | ' ')* '"'
-PATH -> '"' (CHAR | DIGIT | '_' | ' ' | '/' | '.')* '"'
+TRUE : 'true' ;
+FALSE : 'false' ;
 
-IDENTIFIER -> INITIAL_LETTER LETTER*
-FIRST_SYMBOL -> '_' | CHAR
-SYMBOL -> INITIAL_LETTER | DIGIT
+CHAR : [a-z] | [A-Z] ;
+STRING : '"' (CHAR | DIGIT | '_' | ' ')* '"' ;
+PATH : '"' (CHAR | DIGIT | '_' | ' ' | '/' | '.')* '"' ;
 
-SET<X> -> '{' (X ',')* X? '}' | 'set()'
-LIST<X> -> '[' (X ',')* X? ']' | 'list()'
+IDENTIFIER : FIRST_SYMBOL (SYMBOL)* ;
+FIRST_SYMBOL : '_' | CHAR ;
+SYMBOL : FIRST_SYMBOL | DIGIT ;
 
-vertex -> var | INT
+vertex : var | INT ;
 
-vertices ->
-    var
-    | SET<vertex>
-    | 'range' '(' INT ',' INT ')'
-    | 'get_start' '(' graph ')'
-    | 'get_final' '(' graph ')'
-    | 'get_vertices' '(' graph ')'
-    | filter
-    | map
+vertices :
+    vertex
+    | vertices_set
+    | my_range
+    | get_start
+    | get_final
+    | get_vertices
+    | get_reachable
+    | my_filter
+    | my_map
+    ;
 
-edges -> edge
-       | SET<edge>
-       | 'get_edges' '(' graph ')'
+get_start : 'get_start' '(' my_graph ')' ;
+get_final : 'get_final' '(' my_graph ')' ;
+get_vertices : 'get_vertices' '(' my_graph ')' ;
+get_reachable : 'get_reachable' '(' my_graph ')' ;
+my_range : 'range' '(' INT ',' INT ')' ;
 
-edge -> '(' vertex ',' label ',' vertex ')'
+vertices_set : '{' (vertex ',')* (vertex)? '}' ;
+
+edges : edge
+       | edges_set
+       | get_edges
+       ;
+
+get_edges : 'get_edges' '(' my_graph ')' ;
+
+edge : '(' vertex ',' label ',' vertex ')'
       | '(' vertex ',' vertex ')'
+      ;
 
-label -> STRING
+edges_set : '{' (edge ',')* (edge)? '}' ;
 
-labels -> label
-        | SET<label>
-        | 'get_labels' '(' graph ')'
+label : string ;
 
+labels : label
+        | labels_set
+        | get_labels
+        ;
 
-lambda -> 'fun' LIST<var> ':' expr
+get_labels : 'get_labels' '(' my_graph ')' ;
+
+labels_set : '{' (label ',')* (label)? '}' ;
+
+my_lambda :  'fun' '[' (var ',')* var? ']' ':' expr
         | 'fun' ':' expr
+        ;
 
-filter -> 'filter' '(' lambda ',' expr ')'
-map -> 'map' '(' lambda ',' expr ')'
+my_filter : 'filter' '(' my_lambda ',' expr ')'
+          | 'filter' '(' '(' my_lambda ')' ',' expr ')' ;
+my_map : 'map' '(' my_lambda ',' expr ')'
+       | 'map' '(' '(' my_lambda ')' ',' expr ')' ;
 
-var -> IDENTIFIER
+var : IDENTIFIER ;
 
-val -> STRING
-     | INT
-     | BOOL
+val : labels
+     | vertices
+     | edges
+     | bool
+     ;
+
+bool : TRUE
+      | FALSE
+      ;
+
+string : STRING ;
+
+int : INT ;
 ```
 
 ### Пример программы
