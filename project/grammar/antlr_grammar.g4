@@ -62,7 +62,7 @@ STRING : '"' (CHAR | DIGIT | '_' | ' ')* '"' ;
 PATH : '"' (CHAR | DIGIT | '_' | ' ' | '/' | '.')* '"' ;
 
 
-MY_IDENTIFIER : (FIRST_SYMBOL) (MY_SYMBOL*) ;
+IDENTIFIER : (FIRST_SYMBOL) (MY_SYMBOL*) ;
 FIRST_SYMBOL : '_' | CHAR ;
 MY_SYMBOL : FIRST_SYMBOL | DIGIT ;
 
@@ -122,7 +122,7 @@ my_filter : 'filter' '(' my_lambda ',' expr ')'
 my_map : 'map' '(' my_lambda ',' expr ')'
        | 'map' '(' '(' my_lambda ')' ',' expr ')' ;
 
-var : MY_IDENTIFIER ;
+var : IDENTIFIER ;
 
 val : labels
      | vertices
