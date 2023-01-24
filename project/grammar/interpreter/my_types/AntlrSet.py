@@ -1,7 +1,10 @@
 from project.grammar.interpreter.my_types.AntlrType import AntlrType
 from project.grammar.interpreter.my_types.AntlrBool import AntlrBool
 
-from project.grammar.interpreter.exceptions import AntlrTypeError, NotImplementedException
+from project.grammar.interpreter.exceptions import (
+    AntlrTypeError,
+    NotImplementedException,
+)
 
 
 class AntlrSet(AntlrType):

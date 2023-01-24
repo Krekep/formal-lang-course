@@ -1,6 +1,9 @@
 from interprert_token import interpret_token
 from project.grammar.interpreter.my_types.AntlrSet import AntlrSet
-from project.grammar.interpreter.exceptions import NotImplementedException, AntlrTypeError
+from project.grammar.interpreter.exceptions import (
+    NotImplementedException,
+    AntlrTypeError,
+)
 
 import pytest
 
