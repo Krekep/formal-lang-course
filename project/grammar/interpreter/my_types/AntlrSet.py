@@ -1,7 +1,7 @@
 from project.grammar.interpreter.my_types.AntlrType import AntlrType
 from project.grammar.interpreter.my_types.AntlrBool import AntlrBool
 
-from project.grammar.interpreter.exceptions import GQLTypeError, NotImplementedException
+from project.grammar.interpreter.exceptions import AntlrTypeError, NotImplementedException
 
 
 class AntlrSet(AntlrType):
@@ -58,7 +58,7 @@ class AntlrSet(AntlrType):
         return all(map(lambda x: isinstance(x, t), iseq))
 
     @classmethod
-    def fromSet(cls, pyset: set) -> "AntlrSet":
+    def from_set(cls, pyset: set) -> "AntlrSet":
         """
 
         Parameters
@@ -72,11 +72,11 @@ class AntlrSet(AntlrType):
 
         Raises
         ------
-        GQLTypeError
+        AntlrTypeError
             If set type is inconsistent
         """
         if not AntlrSet._type_consistency(pyset):
-            raise GQLTypeError("Set type is inconsistent!")
+            raise AntlrTypeError("Set type is inconsistent!")
         return AntlrSet(pyset)
 
     @property
@@ -121,11 +121,11 @@ class AntlrSet(AntlrType):
 
         Raises
         ------
-        GQLTypeError
+        AntlrTypeError
             If given sets have different types
         """
         if self.data and other.data and self.t != other.t:
-            raise GQLTypeError(f"Types mismatched: {self.t} != {other.t}")
+            raise AntlrTypeError(f"Types mismatched: {self.t} != {other.t}")
         return AntlrSet(internal_set=self.data & other.data)
 
     def union(self, other: "AntlrSet") -> "AntlrSet":
@@ -144,11 +144,11 @@ class AntlrSet(AntlrType):
 
         Raises
         ------
-        GQLTypeError
+        AntlrTypeError
             If given sets have different types
         """
         if self.data and other.data and self.t != other.t:
-            raise GQLTypeError(f"Types mismatched: {self.t} != {other.t}")
+            raise AntlrTypeError(f"Types mismatched: {self.t} != {other.t}")
         return AntlrSet(internal_set=self.data | other.data)
 
     def dot(self, other):

@@ -62,7 +62,7 @@ class VariableNotFoundException(RunTimeException):
         self.msg = f"Variable name '{name}' is not defined"
 
 
-class GQLTypeError(RunTimeException):
+class AntlrTypeError(RunTimeException):
     """
     Raises if expected and actual types differ
     """

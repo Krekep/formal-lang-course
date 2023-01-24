@@ -28,6 +28,7 @@ def test_invalid_extension():
         "tests/interpreter_tests/data/common_labels_filter.gql",
         "tests/interpreter_tests/data/regex_intersection.gql",
         "tests/interpreter_tests/data/rpq.gql",
+        "tests/interpreter_tests/data/print_test.gql"
     ],
 )
 def test_correct_script(script_path):

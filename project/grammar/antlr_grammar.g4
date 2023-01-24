@@ -61,9 +61,10 @@ CHAR : [a-z] | [A-Z] ;
 STRING : '"' (CHAR | DIGIT | '_' | ' ')* '"' ;
 PATH : '"' (CHAR | DIGIT | '_' | ' ' | '/' | '.')* '"' ;
 
-IDENTIFIER : FIRST_SYMBOL (SYMBOL)* ;
+
+MY_IDENTIFIER : (FIRST_SYMBOL) (MY_SYMBOL*) ;
 FIRST_SYMBOL : '_' | CHAR ;
-SYMBOL : FIRST_SYMBOL | DIGIT ;
+MY_SYMBOL : FIRST_SYMBOL | DIGIT ;
 
 vertex : var | INT ;
 
@@ -85,7 +86,8 @@ get_vertices : 'get_vertices' '(' my_graph ')' ;
 get_reachable : 'get_reachable' '(' my_graph ')' ;
 my_range : 'range' '(' INT ',' INT ')' ;
 
-vertices_set : '{' (vertex ',')* (vertex)? '}' ;
+vertices_set : '{' (vertex ',')* (vertex)? '}'
+                | '{' (vertices_set ',')* (vertices_set)? '}' ;
 
 edges : edge
        | edges_set
@@ -120,7 +122,7 @@ my_filter : 'filter' '(' my_lambda ',' expr ')'
 my_map : 'map' '(' my_lambda ',' expr ')'
        | 'map' '(' '(' my_lambda ')' ',' expr ')' ;
 
-var : IDENTIFIER ;
+var : MY_IDENTIFIER ;
 
 val : labels
      | vertices

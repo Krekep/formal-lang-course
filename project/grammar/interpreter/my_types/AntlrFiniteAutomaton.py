@@ -13,7 +13,7 @@ from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
 from project.grammar.interpreter.exceptions import (
     NotImplementedException,
     ConversionException,
-    GQLTypeError,
+    AntlrTypeError,
 )
 
 
@@ -123,7 +123,7 @@ class AntlrFiniteAutomaton(AntlrAutomata):
 
         Raises
         ------
-        GQLTypeError
+        AntlrTypeError
             If object does not represent FA or CFG
         """
         if isinstance(other, AntlrFiniteAutomaton):
@@ -131,7 +131,7 @@ class AntlrFiniteAutomaton(AntlrAutomata):
         if isinstance(other, AntlrCFG):
             return self.__intersect_cfg(other=other)
 
-        raise GQLTypeError(f"Expected AntlrAutomata, got {str(type(other))} instead")
+        raise AntlrTypeError(f"Expected AntlrAutomata, got {str(type(other))} instead")
 
     def union(self, other: "AntlrFiniteAutomaton") -> "AntlrFiniteAutomaton":
         """
@@ -208,7 +208,7 @@ class AntlrFiniteAutomaton(AntlrAutomata):
         return AntlrFiniteAutomaton(nfa)
 
     @staticmethod
-    def __getReachable(nfa: NondeterministicFiniteAutomaton) -> set:
+    def __get_reachable(nfa: NondeterministicFiniteAutomaton) -> set:
         """
         Internal helper function to get reachable vertices set
 
@@ -225,8 +225,6 @@ class AntlrFiniteAutomaton(AntlrAutomata):
         query_bm = AutomatonSetOfMatrix.from_automaton(regex_to_dfa("epsilon"))
         return get_reachable(graph_bm, query_bm)
 
-    # TODO: start, final should be pretty-printed?
-
     def get_reachable(self) -> AntlrSet:
         """
 
@@ -235,7 +233,7 @@ class AntlrFiniteAutomaton(AntlrAutomata):
         reachable: AntlrSet
             Reachable vertices set
         """
-        return AntlrSet(AntlrFiniteAutomaton.__getReachable(self.nfa))
+        return AntlrSet(AntlrFiniteAutomaton.__get_reachable(self.nfa))
 
     @property
     def start(self) -> AntlrSet:

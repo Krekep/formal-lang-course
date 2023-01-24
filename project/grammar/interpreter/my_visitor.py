@@ -12,7 +12,7 @@ from project.grammar.interpreter.my_types.AntlrSet import AntlrSet
 from project.grammar.interpreter.memory import Memory
 
 from project.manager import get_graph
-from project.grammar.interpreter.exceptions import GQLTypeError
+from project.grammar.interpreter.exceptions import AntlrTypeError
 
 from antlr4 import ParserRuleContext
 from typing import Union
@@ -88,9 +88,12 @@ class MyVisitor(antlr_grammarVisitor):
 
     def visitVertices_set(self, ctx: antlr_grammarParser.Vertices_setContext):
         vertices_set = set()
-        for vertex in ctx.vertex():
-            vertices_set.add(self.visitVertex(vertex))
-
+        if ctx.vertex():
+            for vertex in ctx.vertex():
+                vertices_set.add(self.visitVertex(vertex))
+        else:
+            for vertex in ctx.vertices_set():
+                vertices_set.add(self.visitVertices_set(vertex))
         return AntlrSet(vertices_set)
 
     def visitLabel(self, ctx: antlr_grammarParser.LabelContext):
@@ -148,7 +151,7 @@ class MyVisitor(antlr_grammarVisitor):
         fun = self.visit(ctx.my_lambda())
         iterable = self.visit(ctx.expr())
         if not isinstance(iterable, AntlrSet):
-            raise GQLTypeError(
+            raise AntlrTypeError(
                 msg=f"Can not apply map on {type(iterable)} object. Set expected."
             )
         if len(iterable) == 0:
@@ -156,7 +159,7 @@ class MyVisitor(antlr_grammarVisitor):
         first_elem = next(iter(iterable.data))
         param_count = len(first_elem.data) if isinstance(first_elem, AntlrSet) else 1
         if len(fun.params) != param_count:
-            raise GQLTypeError(
+            raise AntlrTypeError(
                 msg=f"Lambda argument count mismatched: Expected {len(fun.params)} Got {param_count}"
             )
         new_iterable = set()

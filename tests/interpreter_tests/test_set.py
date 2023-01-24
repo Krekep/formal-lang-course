@@ -1,6 +1,6 @@
 from interprert_token import interpret_token
 from project.grammar.interpreter.my_types.AntlrSet import AntlrSet
-from project.grammar.interpreter.exceptions import NotImplementedException, GQLTypeError
+from project.grammar.interpreter.exceptions import NotImplementedException, AntlrTypeError
 
 import pytest
 
@@ -51,5 +51,5 @@ def test_mismatched_types():
     lhs = "{11, 22, 33}"
     rhs = '{"11", "22", "33"}'
     expr = lhs + "&" + rhs
-    with pytest.raises(GQLTypeError):
+    with pytest.raises(AntlrTypeError):
         interpret_token(expr, "expr")

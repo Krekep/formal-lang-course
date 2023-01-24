@@ -9,7 +9,7 @@ from project.automaton_matrix import AutomatonSetOfMatrix
 from project.grammar.interpreter.exceptions import (
     NotImplementedException,
     ConversionException,
-    GQLTypeError,
+    AntlrTypeError,
 )
 
 
@@ -67,16 +67,16 @@ class AntlrCFG(AntlrAutomata):
 
         Raises
         ------
-        GQLTypeError
+        AntlrTypeError
             If 'other' type is not AntlrFiniteAutomaton
         """
         if not isinstance(other, AntlrAutomata):
-            raise GQLTypeError(
+            raise AntlrTypeError(
                 f"Expected finite automata, got {str(type(other))} instead"
             )
 
         if isinstance(other, AntlrCFG):
-            raise GQLTypeError(f"Can't intersect CFG with another CFG")
+            raise AntlrTypeError(f"Can't intersect CFG with another CFG")
 
         intersection = self.cfg.intersection(other.nfa)
 
@@ -127,16 +127,16 @@ class AntlrCFG(AntlrAutomata):
     def __str__(self):
         return self.cfg.to_text()
 
-    def setStart(self, start_states):
+    def set_start(self, start_states):
         raise NotImplementedException("Can't set start symbol to CFG after creation")
 
-    def setFinal(self, final_states):
+    def set_final(self, final_states):
         raise NotImplementedException("Can't set final symbol to CFG")
 
-    def addStart(self, start_states):
+    def add_start(self, start_states):
         raise NotImplementedException("Can't add more start symbols to CFG")
 
-    def addFinal(self, final_states):
+    def add_final(self, final_states):
         raise NotImplementedException("Can't add final symbols to CFG")
 
     @property
@@ -168,7 +168,7 @@ class AntlrCFG(AntlrAutomata):
         reachable: AntlrSet
             Set of reachable vertices
         """
-        ecfg = ECFG.from_pyformlang_cfg(self.cfg)
+        ecfg = ECFG.from_cfg(self.cfg)
         rsm = RSM.from_ecfg(ecfg)
         rsm_bm = AutomatonSetOfMatrix.from_rsm(rsm)
         tc = rsm_bm.get_transitive_closure()
