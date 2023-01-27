@@ -9,9 +9,40 @@ from project.graph_utils import graph_to_nfa
 
 from pyformlang.finite_automaton import DeterministicFiniteAutomaton
 from scipy import sparse
-import numpy as np
+from project.rsm import RSM
 
-__all__ = ["rpq", "bfs_rpq"]
+__all__ = ["get_reachable", "rpq", "bfs_rpq"]
+
+
+def get_reachable(
+    graph_bm: AutomatonSetOfMatrix, query_bm: AutomatonSetOfMatrix
+) -> set:
+    """
+    Parameters
+    ----------
+    query_bm: AutomatonSetOfMatrix
+        Query boolean matrix
+    bmatrix: AutomatonSetOfMatrix
+        Boolean matrix object
+
+    Returns
+    -------
+    reachable: set
+        Set of reachable pairs of graph vertices
+    """
+    tc = graph_bm.get_transitive_closure()
+
+    result = set()
+    for state_from, state_to in zip(*tc.nonzero()):
+        if state_from in graph_bm.start_states and state_to in graph_bm.final_states:
+            result.add(
+                (
+                    state_from // len(query_bm.state_indices),
+                    state_to // len(query_bm.state_indices),
+                )
+            )
+
+    return result
 
 
 def rpq(
@@ -44,22 +75,10 @@ def rpq(
         graph_to_nfa(graph, start_vertices, final_vertices)
     )
     intersected_automaton = graph_automaton_matrix.intersect(regex_automaton_matrix)
-    tc_matrix = intersected_automaton.get_transitive_closure()
-    res = set()
 
-    for s_from, s_to in zip(*tc_matrix.nonzero()):
-        if (
-            s_from in intersected_automaton.start_states
-            and s_to in intersected_automaton.final_states
-        ):
-            res.add(
-                (
-                    s_from // regex_automaton_matrix.num_states,
-                    s_to // regex_automaton_matrix.num_states,
-                )
-            )
-
-    return res
+    return get_reachable(
+        graph_bm=intersected_automaton, query_bm=regex_automaton_matrix
+    )
 
 
 def _build_adj_empty_matrix(g: nx.MultiDiGraph) -> sparse.csr_matrix:
@@ -314,7 +333,6 @@ def _reduce_to_vector(m: sparse.csr_matrix) -> sparse.csr_matrix:
 def _bfs_based_rpq(
     r: DeterministicFiniteAutomaton, g: nx.MultiDiGraph, v_src: set, separated=False
 ) -> List[sparse.csr_matrix]:
-
     """
 
     Parameters

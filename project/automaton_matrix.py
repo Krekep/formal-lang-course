@@ -154,6 +154,9 @@ class AutomatonSetOfMatrix:
     def get_final_states(self):
         return self.final_states.copy()
 
+    def get_nonterminals(self, s_from, s_to):
+        return self.state_indices.get((s_from, s_to))
+
     def get_transitive_closure(self):
         """
         Get transitive closure of sparse.csr_matrix
